@@ -1,0 +1,239 @@
+
+import React from 'react';
+import { ResumeData } from '../types';
+import { generateSummary } from '../services/geminiService';
+
+interface Props {
+  data: ResumeData;
+  onChange: (newData: ResumeData) => void;
+}
+
+const ProfilePage: React.FC<Props> = ({ data, onChange }) => {
+  const inputClass = "w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white focus:outline-none transition-all text-sm text-slate-900 shadow-sm placeholder-slate-400";
+  const labelClass = "block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wider ml-1";
+  const sectionClass = "bg-white p-8 rounded-3xl shadow-sm border border-slate-200 mb-8";
+  const btnClass = "px-5 py-2.5 bg-slate-900 text-white rounded-xl hover:bg-black transition-all text-sm font-bold shadow-md active:scale-95";
+
+  const updatePersonalInfo = (field: string, value: string) => {
+    onChange({ ...data, personalInfo: { ...data.personalInfo, [field]: value } });
+  };
+
+  const addItem = (field: 'experience' | 'education' | 'projects') => {
+    const newItem: any = { id: Math.random().toString(36).substr(2, 9) };
+    if (field === 'experience') {
+      Object.assign(newItem, { company: '', role: '', location: '', startDate: '', endDate: '', description: [''] });
+    } else if (field === 'education') {
+      Object.assign(newItem, { institution: '', degree: '', location: '', graduationDate: '' });
+    } else {
+      Object.assign(newItem, { name: '', technologies: [], description: [''] });
+    }
+    onChange({ ...data, [field]: [...(data[field] || []), newItem] });
+  };
+
+  const removeItem = (field: 'experience' | 'education' | 'projects', id: string) => {
+    onChange({ ...data, [field]: (data[field] || []).filter((item: any) => item.id !== id) });
+  };
+
+  const updateItem = (field: 'experience' | 'education' | 'projects', id: string, key: string, value: any) => {
+    const updated = (data[field] || []).map((item: any) => item.id === id ? { ...item, [key]: value } : item);
+    onChange({ ...data, [field]: updated });
+  };
+
+  // Ensure skills object exists to avoid crash
+  const skillsData = data.skills || { languages: [], databases: [], cloud: [], tools: [] };
+
+  return (
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+      {/* Personal Info */}
+      <section className={sectionClass}>
+        <h2 className="text-2xl font-black text-slate-900 mb-6">Personal Details</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="md:col-span-2">
+            <label className={labelClass}>Full Name</label>
+            <input className={inputClass} value={data.personalInfo.fullName} onChange={e => updatePersonalInfo('fullName', e.target.value)} placeholder="Alex Rivera" />
+          </div>
+          <div>
+            <label className={labelClass}>Email</label>
+            <input className={inputClass} value={data.personalInfo.email} onChange={e => updatePersonalInfo('email', e.target.value)} placeholder="alex@example.com" />
+          </div>
+          <div>
+            <label className={labelClass}>Phone</label>
+            <input className={inputClass} value={data.personalInfo.phone} onChange={e => updatePersonalInfo('phone', e.target.value)} placeholder="(555) 000-0000" />
+          </div>
+          <div>
+            <label className={labelClass}>Location</label>
+            <input className={inputClass} value={data.personalInfo.location} onChange={e => updatePersonalInfo('location', e.target.value)} placeholder="New York, NY" />
+          </div>
+          <div>
+            <label className={labelClass}>LinkedIn</label>
+            <input className={inputClass} value={data.personalInfo.linkedin} onChange={e => updatePersonalInfo('linkedin', e.target.value)} placeholder="linkedin.com/in/alex" />
+          </div>
+          <div>
+            <label className={labelClass}>GitHub</label>
+            <input className={inputClass} value={data.personalInfo.github} onChange={e => updatePersonalInfo('github', e.target.value)} placeholder="github.com/alex" />
+          </div>
+        </div>
+      </section>
+
+      {/* Summary */}
+      <section className={sectionClass}>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-black text-slate-900">Summary</h2>
+          <button 
+            onClick={async () => {
+              const res = await generateSummary(JSON.stringify(data.experience));
+              onChange({...data, summary: res});
+            }}
+            className="text-xs font-bold text-blue-600 bg-blue-50 px-4 py-2 rounded-full hover:bg-blue-100 border border-blue-100"
+          >
+            <i className="fas fa-sparkles mr-2"></i>AI Generate
+          </button>
+        </div>
+        <textarea 
+          className={`${inputClass} h-32 resize-none`}
+          value={data.summary}
+          onChange={e => onChange({ ...data, summary: e.target.value })}
+          placeholder="Professional summary..."
+        />
+      </section>
+
+      {/* Skills */}
+      <section className={sectionClass}>
+        <h2 className="text-2xl font-black text-slate-900 mb-6">Technical Skills</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {Object.keys(skillsData).map((key) => (
+            <div key={key}>
+              <label className={labelClass}>{key.charAt(0).toUpperCase() + key.slice(1)}</label>
+              <input 
+                className={inputClass}
+                value={(skillsData[key as keyof typeof skillsData] || []).join(', ')}
+                onChange={e => onChange({
+                  ...data,
+                  skills: { ...skillsData, [key]: e.target.value.split(',').map(s => s.trim()).filter(s => s !== '') }
+                })}
+                placeholder="Comma separated list..."
+              />
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Experience */}
+      <section className="mb-12">
+        <div className="flex justify-between items-end mb-6">
+          <h2 className="text-2xl font-black text-slate-900">Work History</h2>
+          <button onClick={() => addItem('experience')} className={btnClass}>+ Add Position</button>
+        </div>
+        <div className="space-y-6">
+          {(data.experience || []).map((exp) => (
+            <div key={exp.id} className="p-8 border border-slate-200 rounded-3xl bg-white shadow-sm relative group">
+              <button onClick={() => removeItem('experience', exp.id)} className="absolute top-6 right-6 text-slate-300 hover:text-red-500 p-2"><i className="fas fa-trash"></i></button>
+              <div className="grid grid-cols-2 gap-6">
+                <div className="col-span-2">
+                  <label className={labelClass}>Company</label>
+                  <input className={inputClass} value={exp.company} onChange={e => updateItem('experience', exp.id, 'company', e.target.value)} />
+                </div>
+                <div>
+                  <label className={labelClass}>Role</label>
+                  <input className={inputClass} value={exp.role} onChange={e => updateItem('experience', exp.id, 'role', e.target.value)} />
+                </div>
+                <div>
+                  <label className={labelClass}>Location</label>
+                  <input className={inputClass} value={exp.location} onChange={e => updateItem('experience', exp.id, 'location', e.target.value)} />
+                </div>
+                <div>
+                  <label className={labelClass}>Start Date</label>
+                  <input className={inputClass} value={exp.startDate} onChange={e => updateItem('experience', exp.id, 'startDate', e.target.value)} />
+                </div>
+                <div>
+                  <label className={labelClass}>End Date</label>
+                  <input className={inputClass} value={exp.endDate} onChange={e => updateItem('experience', exp.id, 'endDate', e.target.value)} />
+                </div>
+                <div className="col-span-2">
+                  <label className={labelClass}>Description (one per line)</label>
+                  <textarea 
+                    className={`${inputClass} h-32`}
+                    value={(exp.description || []).join('\n')}
+                    onChange={e => updateItem('experience', exp.id, 'description', e.target.value.split('\n'))}
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Projects */}
+      <section className="mb-12">
+        <div className="flex justify-between items-end mb-6">
+          <h2 className="text-2xl font-black text-slate-900">Projects</h2>
+          <button onClick={() => addItem('projects')} className={btnClass}>+ Add Project</button>
+        </div>
+        <div className="space-y-6">
+          {(data.projects || []).map((proj) => (
+            <div key={proj.id} className="p-8 border border-slate-200 rounded-3xl bg-white shadow-sm relative group">
+              <button onClick={() => removeItem('projects', proj.id)} className="absolute top-6 right-6 text-slate-300 hover:text-red-500 p-2"><i className="fas fa-trash"></i></button>
+              <div className="grid grid-cols-2 gap-6">
+                <div className="col-span-2">
+                  <label className={labelClass}>Project Name</label>
+                  <input className={inputClass} value={proj.name} onChange={e => updateItem('projects', proj.id, 'name', e.target.value)} />
+                </div>
+                <div className="col-span-2">
+                  <label className={labelClass}>Technologies (Comma separated)</label>
+                  <input 
+                    className={inputClass} 
+                    value={(proj.technologies || []).join(', ')} 
+                    onChange={e => updateItem('projects', proj.id, 'technologies', e.target.value.split(',').map(s => s.trim()))} 
+                  />
+                </div>
+                <div className="col-span-2">
+                  <label className={labelClass}>Description (one per line)</label>
+                  <textarea 
+                    className={`${inputClass} h-32`}
+                    value={(proj.description || []).join('\n')}
+                    onChange={e => updateItem('projects', proj.id, 'description', e.target.value.split('\n'))}
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Education */}
+      <section className="mb-12">
+        <div className="flex justify-between items-end mb-6">
+          <h2 className="text-2xl font-black text-slate-900">Education</h2>
+          <button onClick={() => addItem('education')} className={btnClass}>+ Add Education</button>
+        </div>
+        <div className="space-y-6">
+          {(data.education || []).map((edu) => (
+            <div key={edu.id} className="p-8 border border-slate-200 rounded-3xl bg-white shadow-sm relative group">
+              <button onClick={() => removeItem('education', edu.id)} className="absolute top-6 right-6 text-slate-300 hover:text-red-500 p-2"><i className="fas fa-trash"></i></button>
+              <div className="grid grid-cols-2 gap-6">
+                <div className="col-span-2">
+                  <label className={labelClass}>Institution</label>
+                  <input className={inputClass} value={edu.institution} onChange={e => updateItem('education', edu.id, 'institution', e.target.value)} />
+                </div>
+                <div>
+                  <label className={labelClass}>Degree</label>
+                  <input className={inputClass} value={edu.degree} onChange={e => updateItem('education', edu.id, 'degree', e.target.value)} />
+                </div>
+                <div>
+                  <label className={labelClass}>Location</label>
+                  <input className={inputClass} value={edu.location} onChange={e => updateItem('education', edu.id, 'location', e.target.value)} />
+                </div>
+                <div>
+                  <label className={labelClass}>Graduation Date</label>
+                  <input className={inputClass} value={edu.graduationDate} onChange={e => updateItem('education', edu.id, 'graduationDate', e.target.value)} />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+};
+
+export default ProfilePage;
