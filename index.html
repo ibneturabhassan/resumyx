@@ -71,25 +71,15 @@
                 height: auto !important;
                 min-height: 297mm;
                 margin: 0 !important;
-                padding: 0.75in !important; /* Standard ATS margin for export */
+                padding: 12mm 15mm !important;
             }
         }
     </style>
-<script type="importmap">
-{
-  "imports": {
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "@google/genai": "https://esm.sh/@google/genai@^1.36.0",
-    "react/": "https://esm.sh/react@^19.2.3/",
-    "react": "https://esm.sh/react@^19.2.3",
-    "react-dom": "https://esm.sh/react-dom@^19.2.3"
-  }
-}
-</script>
 </head>
 <body class="text-slate-900">
     <div id="root"></div>
     <!-- Dedicated container for printing to ensure React UI doesn't interfere -->
     <div id="print-portal-root"></div>
+    <script type="module" src="/index.tsx"></script>
 </body>
 </html>

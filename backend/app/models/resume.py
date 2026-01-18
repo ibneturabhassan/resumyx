@@ -1,0 +1,73 @@
+from pydantic import BaseModel, Field
+from typing import List, Optional
+
+class PersonalInfo(BaseModel):
+    fullName: str
+    email: str
+    phone: str
+    location: str
+    linkedin: str
+    github: str
+
+class Skills(BaseModel):
+    languages: List[str] = []
+    databases: List[str] = []
+    cloud: List[str] = []
+    tools: List[str] = []
+
+class Experience(BaseModel):
+    id: str
+    company: str
+    role: str
+    location: str
+    startDate: str
+    endDate: str
+    description: List[str]
+
+class Education(BaseModel):
+    id: str
+    institution: str
+    degree: str
+    location: str
+    graduationDate: str
+
+class Project(BaseModel):
+    id: str
+    name: str
+    technologies: List[str] = []
+    description: List[str]
+
+class ResumeData(BaseModel):
+    personalInfo: PersonalInfo
+    summary: str
+    coverLetter: str = ""
+    skills: Skills
+    experience: List[Experience] = []
+    education: List[Education] = []
+    projects: List[Project] = []
+    certifications: List[str] = []
+
+class ResumeProfile(BaseModel):
+    userId: str
+    profileData: ResumeData
+    targetJd: Optional[str] = ""
+
+class ResumeProfileResponse(BaseModel):
+    userId: str
+    profileData: ResumeData
+    targetJd: str
+    createdAt: str
+    updatedAt: str
+
+class TailorRequest(BaseModel):
+    profileData: ResumeData
+    jobDescription: str
+
+class CoverLetterRequest(BaseModel):
+    profileData: ResumeData
+    jobDescription: str
+    instructions: Optional[str] = ""
+
+class ATSScoreResponse(BaseModel):
+    score: int
+    feedback: str

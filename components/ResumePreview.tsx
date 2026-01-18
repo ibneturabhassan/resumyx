@@ -35,7 +35,7 @@ const ResumePreview: React.FC<Props> = ({ data, highlightedSection }) => {
           min-height: 297mm;
           background-color: white;
           position: relative;
-          padding: 0.75in;
+          padding: 12mm 15mm;
           box-sizing: border-box;
           font-family: 'Inter', sans-serif;
           color: #111;
@@ -74,8 +74,8 @@ const ResumePreview: React.FC<Props> = ({ data, highlightedSection }) => {
           font-weight: 700;
           text-transform: uppercase;
           letter-spacing: 0.1em;
-          border-bottom: 1.5pt solid #222;
-          padding-bottom: 2px;
+          border-bottom: 2px solid #222;
+          padding-bottom: 6px;
           margin-bottom: 12px;
           color: #000;
           display: block;
@@ -107,14 +107,14 @@ const ResumePreview: React.FC<Props> = ({ data, highlightedSection }) => {
 
         @media print {
           .resume-canvas { padding: 0 !important; background: white !important; gap: 0 !important; }
-          .resume-continuous { 
-            box-shadow: none !important; 
-            padding: 0.75in !important; 
+          .resume-continuous {
+            box-shadow: none !important;
+            padding: 12mm 15mm !important;
             margin: 0 !important;
             width: 100% !important;
           }
           .page-break-marker, .page-label { display: none !important; }
-          
+
           @page {
             margin: 0;
             size: A4;

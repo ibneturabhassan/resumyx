@@ -1,7 +1,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { ResumeData } from '../types';
-import * as GeminiService from '../services/geminiService';
+import { apiService } from '../services/apiService';
 
 interface Props {
   profileData: ResumeData;
@@ -36,11 +36,12 @@ const CoverLetterPage: React.FC<Props> = ({ profileData, jd, setJd, instructions
     onAgentChange?.('Drafting Cover Letter');
 
     try {
-      const letter = await GeminiService.generateCoverLetter(
+      addLog("📝 Analyzing your profile and job description...");
+      addLog("✍️ Crafting personalized cover letter...");
+      const letter = await apiService.generateCoverLetter(
         profileData,
         jd,
-        instructions,
-        addLog
+        instructions
       );
       onUpdate(letter);
       addLog("✅ Cover letter crafted and synced to preview.");
@@ -53,18 +54,23 @@ const CoverLetterPage: React.FC<Props> = ({ profileData, jd, setJd, instructions
   };
 
   return (
-    <div className="space-y-12 animate-in fade-in slide-in-from-bottom-6 duration-700">
-      <div className="bg-white p-8 xl:p-10 rounded-[2.5rem] shadow-xl border border-slate-200/60">
-        <h2 className="text-2xl font-black text-slate-900 mb-6 flex items-center gap-3">
-          <i className="fas fa-pen-nib text-blue-600"></i>
-          Tailor Your Narrative
-        </h2>
-        
-        <div className="space-y-8">
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-6 duration-700">
+      <div className="bg-white p-8 rounded-2xl shadow-lg border border-slate-100">
+        <div className="flex items-center gap-3 mb-8 pb-5 border-b border-slate-100">
+          <div className="w-10 h-10 rounded-lg bg-violet-600 flex items-center justify-center text-white">
+            <i className="fas fa-pen-nib text-sm"></i>
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-slate-800">Cover Letter Generator</h2>
+            <p className="text-sm text-slate-500">Create a personalized cover letter with AI</p>
+          </div>
+        </div>
+
+        <div className="space-y-6">
           <div className="space-y-3">
-            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] ml-1">Target Job Description</label>
-            <textarea 
-              className="w-full h-48 p-5 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 focus:bg-white focus:outline-none transition-all text-sm leading-relaxed"
+            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide">Target Job Description</label>
+            <textarea
+              className="w-full h-44 p-4 bg-slate-50/80 border border-slate-200 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white focus:outline-none transition-all duration-200 text-sm leading-relaxed placeholder-slate-400 hover:border-slate-300 resize-none"
               placeholder="Paste the job description here (this carries over from the resume tab)..."
               value={jd}
               onChange={(e) => setJd(e.target.value)}
@@ -72,33 +78,35 @@ const CoverLetterPage: React.FC<Props> = ({ profileData, jd, setJd, instructions
           </div>
 
           <div className="space-y-3">
-            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] ml-1">Special Instructions (Optional)</label>
-            <textarea 
-              className="w-full h-32 p-5 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 focus:bg-white focus:outline-none transition-all text-sm leading-relaxed"
+            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide">Special Instructions (Optional)</label>
+            <textarea
+              className="w-full h-28 p-4 bg-slate-50/80 border border-slate-200 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white focus:outline-none transition-all duration-200 text-sm leading-relaxed placeholder-slate-400 hover:border-slate-300 resize-none"
               placeholder="e.g. Highlight my experience with multi-tenant SaaS architecture or explain my career gap in 2022..."
               value={instructions}
               onChange={(e) => setInstructions(e.target.value)}
             />
           </div>
 
-          <button 
+          <button
             onClick={handleGenerate}
             disabled={loading}
-            className={`w-full py-5 rounded-2xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-3 transition-all ${loading ? 'bg-slate-100 text-slate-400' : 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg active:scale-[0.98]'}`}
+            className={`w-full py-5 rounded-xl font-semibold text-base flex items-center justify-center gap-3 transition-all duration-200 shadow-lg active:scale-[0.98] ${loading ? 'bg-slate-100 text-slate-400 shadow-none' : 'bg-slate-900 text-white hover:bg-slate-800 hover:shadow-xl hover:-translate-y-0.5'}`}
           >
-            {loading ? <i className="fas fa-spinner fa-spin"></i> : <i className="fas fa-magic"></i>}
-            {loading ? "Agent is Drafting..." : "Generate Professional Cover Letter"}
+            {loading ? <i className="fas fa-circle-notch fa-spin text-violet-500"></i> : <i className="fas fa-wand-magic-sparkles text-violet-400"></i>}
+            {loading ? "Generating..." : "Generate Cover Letter"}
           </button>
         </div>
       </div>
 
-      <div className="bg-white p-8 xl:p-10 rounded-[2.5rem] shadow-xl border border-slate-200/60">
-        <h2 className="text-2xl font-black text-slate-900 mb-6 flex items-center gap-3">
-          <i className="fas fa-edit text-slate-400"></i>
-          Direct Editor
-        </h2>
-        <textarea 
-          className="w-full h-[500px] p-8 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 focus:bg-white focus:outline-none transition-all text-sm leading-relaxed font-serif"
+      <div className="bg-white p-8 rounded-2xl shadow-lg border border-slate-100">
+        <div className="flex items-center gap-3 mb-6 pb-5 border-b border-slate-100">
+          <div className="w-8 h-8 rounded-lg bg-slate-700 flex items-center justify-center text-white">
+            <i className="fas fa-edit text-xs"></i>
+          </div>
+          <h2 className="text-xl font-bold text-slate-800">Direct Editor</h2>
+        </div>
+        <textarea
+          className="w-full h-96 p-6 bg-slate-50/80 border border-slate-200 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white focus:outline-none transition-all duration-200 text-sm leading-relaxed font-serif placeholder-slate-400 hover:border-slate-300 resize-none"
           value={profileData.coverLetter}
           onChange={(e) => onUpdate(e.target.value)}
           placeholder="AI-generated cover letter will appear here for you to edit in real-time..."
@@ -106,12 +114,18 @@ const CoverLetterPage: React.FC<Props> = ({ profileData, jd, setJd, instructions
       </div>
 
       {logs.length > 0 && (
-        <div className="bg-slate-900 rounded-[2rem] p-6 shadow-2xl border border-slate-800">
-          <div className="font-mono text-[10px] text-slate-500 space-y-1 h-24 overflow-y-auto custom-scrollbar">
+        <div className="bg-slate-800 rounded-2xl p-6 shadow-xl border border-slate-700">
+          <div className="flex items-center gap-3 mb-4 pb-3 border-b border-slate-700">
+            <div className="w-8 h-8 rounded-lg bg-slate-700 flex items-center justify-center">
+              <i className="fas fa-terminal text-violet-400 text-sm"></i>
+            </div>
+            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Generation Log</span>
+          </div>
+          <div className="font-mono text-xs text-slate-400 space-y-1.5 h-28 overflow-y-auto custom-scrollbar pr-4">
             {logs.map((log, i) => (
-              <div key={i} className="flex gap-2">
-                <span className="text-slate-700">{i}</span>
-                <span className={log.includes('✅') ? 'text-emerald-400' : 'text-slate-400'}>{log}</span>
+              <div key={i} className="flex gap-3 py-1 px-2 rounded hover:bg-slate-700/50 transition-colors">
+                <span className="text-slate-600 shrink-0 w-5">{i.toString().padStart(2, '0')}</span>
+                <span className={log.includes('✅') || log.includes('synced') ? 'text-emerald-400' : log.includes('❌') ? 'text-red-400' : 'text-slate-300'}>{log}</span>
               </div>
             ))}
             <div ref={logEndRef} />

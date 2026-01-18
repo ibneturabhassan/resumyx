@@ -24,12 +24,12 @@ const CoverLetterPreview: React.FC<Props> = ({ data }) => {
           gap: 2rem;
         }
 
-        .resume-continuous {
+        .resume-continuous, .cover-letter-continuous {
           width: 210mm;
           min-height: 297mm;
           background-color: white;
           position: relative;
-          padding: 1in;
+          padding: 15mm 18mm;
           box-sizing: border-box;
           font-family: 'Merriweather', serif;
           -webkit-font-smoothing: antialiased;
@@ -103,16 +103,16 @@ const CoverLetterPreview: React.FC<Props> = ({ data }) => {
 
         @media print {
           .resume-canvas { padding: 0 !important; background: white !important; gap: 0 !important; }
-          .resume-continuous { 
-            box-shadow: none !important; 
-            padding: 1in !important; 
+          .resume-continuous, .cover-letter-continuous {
+            box-shadow: none !important;
+            padding: 15mm 18mm !important;
             width: 100% !important;
           }
           .page-break-marker, .page-label { display: none !important; }
         }
       `}</style>
 
-      <div className="resume-continuous">
+      <div className="cover-letter-continuous">
         {/* Page Break Indicator */}
         <div className="page-break-marker no-print" style={{ top: '297mm' }}>
            <span className="page-label">Page 1 Boundary</span>

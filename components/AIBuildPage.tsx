@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { ResumeData } from '../types';
-import * as GeminiService from '../services/geminiService';
+import { apiService } from '../services/apiService';
 
 interface Props {
   profileData: ResumeData;
@@ -34,62 +34,42 @@ const AIBuildPage: React.FC<Props> = ({ profileData, jd, setJd, onResult, onAgen
     setDone(false);
     setLogs(["🚀 Launching Resume Optimization Sequence..."]);
     onScoreUpdate?.(null);
-    
+
     let tailoredResume: ResumeData = { ...profileData };
 
     try {
       setCurrentStep(1);
       onAgentChange?.('Summary');
-      tailoredResume.summary = await GeminiService.generateTailoredSummary(
-        profileData.summary,
-        profileData.skills,
-        jd,
-        addLog
-      );
-      onResult({ ...tailoredResume }); 
+      addLog("📝 Tailoring professional summary...");
 
       setCurrentStep(2);
       onAgentChange?.('Experience');
-      tailoredResume.experience = await GeminiService.generateTailoredExperience(
-        profileData.experience,
-        jd,
-        addLog
-      );
-      onResult({ ...tailoredResume });
+      addLog("💼 Optimizing work experience...");
 
       setCurrentStep(3);
       onAgentChange?.('Skills');
-      tailoredResume.skills = await GeminiService.generateTailoredSkills(
-        profileData.skills,
-        jd,
-        addLog
-      );
-      onResult({ ...tailoredResume });
+      addLog("🛠️ Prioritizing relevant skills...");
 
       setCurrentStep(4);
       onAgentChange?.('Projects');
-      tailoredResume.projects = await GeminiService.generateTailoredProjects(
-        profileData.projects,
-        jd,
-        addLog
-      );
-      onResult({ ...tailoredResume });
+      addLog("🚀 Enhancing project descriptions...");
 
       setCurrentStep(5);
       onAgentChange?.('Education');
-      tailoredResume.education = await GeminiService.generateTailoredEducation(
-        profileData.education,
-        jd,
-        addLog
-      );
+      addLog("🎓 Reviewing education section...");
+
+      // Call backend API to tailor the entire resume at once
+      tailoredResume = await apiService.tailorResume(profileData, jd);
       onResult({ ...tailoredResume });
+      addLog("✅ Resume tailoring complete!");
 
       setCurrentStep(6);
       onAgentChange?.('Scoring');
-      const scoreResult = await GeminiService.calculateATSScore(tailoredResume, jd, addLog);
+      addLog("🎯 Calculating ATS compatibility score...");
+      const scoreResult = await apiService.calculateATSScore(tailoredResume, jd);
       onScoreUpdate?.(scoreResult.score);
       addLog(`🎯 Optimization complete! ATS Match Score: ${scoreResult.score}%`);
-      
+
       onAgentChange?.(null);
       addLog("✨ Agent workflow finished successfully.");
       setDone(true);
@@ -113,59 +93,69 @@ const AIBuildPage: React.FC<Props> = ({ profileData, jd, setJd, onResult, onAgen
   ];
 
   return (
-    <div className="space-y-12 animate-in fade-in slide-in-from-bottom-6 duration-700">
-      <div className="bg-white p-8 xl:p-12 rounded-[2.5rem] shadow-xl border border-slate-200/60">
-        <div className="flex flex-col md:flex-row gap-10 items-start">
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-6 duration-700">
+      <div className="bg-white p-8 xl:p-10 rounded-2xl shadow-lg border border-slate-100">
+        <div className="flex items-center gap-3 mb-8 pb-5 border-b border-slate-100">
+          <div className="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center text-white">
+            <i className="fas fa-wand-magic-sparkles text-sm"></i>
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-slate-800">AI Resume Tailor</h2>
+            <p className="text-sm text-slate-500">Optimize your resume for any job description</p>
+          </div>
+        </div>
+
+        <div className="flex flex-col lg:flex-row gap-8 items-start">
           <div className="flex-1 space-y-6 w-full">
             <div className="space-y-3">
-              <label className="block text-xs font-black text-slate-400 uppercase tracking-[0.3em] ml-1">Target Job Description</label>
-              <textarea 
-                className="w-full h-80 p-6 bg-slate-50 border border-slate-200 rounded-[2rem] focus:ring-8 focus:ring-blue-500/5 focus:border-blue-500 focus:bg-white focus:outline-none transition-all text-slate-800 placeholder-slate-300 leading-relaxed shadow-inner font-medium resize-none"
-                placeholder="Paste the Job Description to start the agents..."
+              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide">Target Job Description</label>
+              <textarea
+                className="w-full h-72 p-5 bg-slate-50/80 border border-slate-200 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white focus:outline-none transition-all duration-200 text-sm text-slate-800 placeholder-slate-400 leading-relaxed resize-none hover:border-slate-300"
+                placeholder="Paste the job description here to start the AI agents..."
                 value={jd}
                 onChange={(e) => setJd(e.target.value)}
                 disabled={loading}
               />
             </div>
-            
-            <button 
+
+            <button
               onClick={handleTailor}
               disabled={loading || !jd.trim()}
-              className={`w-full py-6 rounded-2xl font-black text-lg flex items-center justify-center gap-4 transition-all shadow-xl active:scale-[0.98] ${loading ? 'bg-slate-100 text-slate-400' : 'bg-slate-900 text-white hover:bg-black'}`}
+              className={`w-full py-5 rounded-xl font-semibold text-base flex items-center justify-center gap-3 transition-all duration-200 shadow-lg active:scale-[0.98] ${loading ? 'bg-slate-100 text-slate-400 shadow-none' : 'bg-slate-900 text-white hover:bg-slate-800 hover:shadow-xl hover:-translate-y-0.5'}`}
             >
               {loading ? (
                 <>
                   <i className="fas fa-circle-notch fa-spin text-blue-500"></i>
-                  Agents Processing...
+                  <span>Processing...</span>
                 </>
               ) : (
                 <>
                   <i className="fas fa-bolt-lightning text-amber-400"></i>
-                  Tailor My Resume
+                  <span>Tailor My Resume</span>
                 </>
               )}
             </button>
 
             {done && onProceed && (
-              <button 
+              <button
                 onClick={onProceed}
-                className="w-full py-4 border-2 border-dashed border-blue-200 text-blue-600 rounded-2xl font-bold text-sm uppercase tracking-widest hover:bg-blue-50 transition-all flex items-center justify-center gap-2 group"
+                className="w-full py-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 text-blue-600 rounded-xl font-semibold text-sm hover:from-blue-100 hover:to-indigo-100 transition-all duration-200 flex items-center justify-center gap-2 group hover:shadow-md"
               >
-                Next Step: Create Cover Letter
-                <i className="fas fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                <span>Next: Create Cover Letter</span>
+                <i className="fas fa-arrow-right group-hover:translate-x-1 transition-transform duration-200"></i>
               </button>
             )}
           </div>
 
-          <div className="w-full md:w-56 space-y-4 shrink-0">
-            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Optimization Flow</h3>
+          <div className="w-full lg:w-52 space-y-4 shrink-0">
+            <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wide px-1">Optimization Steps</h3>
             <div className="space-y-2">
               {steps.map((step, idx) => (
-                <div key={idx} className={`flex items-center gap-3 p-3 rounded-xl transition-all border duration-500 ${currentStep === idx + 1 ? 'bg-blue-50 border-blue-100 scale-105 shadow-sm' : currentStep > idx + 1 ? 'bg-emerald-50 border-emerald-100' : 'bg-slate-50 border-transparent opacity-40'}`}>
-                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${currentStep === idx + 1 ? 'bg-blue-600 text-white animate-pulse' : currentStep > idx + 1 ? 'bg-emerald-500 text-white' : 'bg-slate-200 text-slate-400'}`}>
-                    <i className={`fas ${step.icon} text-[10px]`}></i>
+                <div key={idx} className={`flex items-center gap-3 p-3 rounded-xl transition-all duration-300 border ${currentStep === idx + 1 ? 'bg-blue-50 border-blue-200 scale-[1.02] shadow-sm' : currentStep > idx + 1 ? 'bg-emerald-50 border-emerald-200' : 'bg-slate-50/50 border-transparent opacity-50'}`}>
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-all duration-300 ${currentStep === idx + 1 ? 'bg-blue-600 text-white shadow-md shadow-blue-500/30' : currentStep > idx + 1 ? 'bg-emerald-500 text-white' : 'bg-slate-200 text-slate-400'}`}>
+                    {currentStep > idx + 1 ? <i className="fas fa-check text-xs"></i> : <i className={`fas ${step.icon} text-xs`}></i>}
                   </div>
-                  <span className={`text-[10px] font-black uppercase tracking-widest ${currentStep === idx + 1 ? 'text-blue-700' : currentStep > idx + 1 ? 'text-emerald-700' : 'text-slate-400'}`}>{step.label}</span>
+                  <span className={`text-xs font-semibold ${currentStep === idx + 1 ? 'text-blue-700' : currentStep > idx + 1 ? 'text-emerald-700' : 'text-slate-400'}`}>{step.label}</span>
                 </div>
               ))}
             </div>
@@ -174,16 +164,18 @@ const AIBuildPage: React.FC<Props> = ({ profileData, jd, setJd, onResult, onAgen
       </div>
 
       {logs.length > 0 && (
-        <div className="bg-slate-900 rounded-[2.5rem] p-8 shadow-2xl border border-slate-800">
-          <div className="flex items-center gap-3 mb-6 border-b border-slate-800 pb-4">
-            <i className="fas fa-terminal text-blue-500 text-xs"></i>
-            <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em]">Agentic Log Stream</span>
+        <div className="bg-slate-800 rounded-2xl p-6 shadow-xl border border-slate-700">
+          <div className="flex items-center gap-3 mb-4 pb-3 border-b border-slate-700">
+            <div className="w-8 h-8 rounded-lg bg-slate-700 flex items-center justify-center">
+              <i className="fas fa-terminal text-blue-400 text-sm"></i>
+            </div>
+            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Agent Log Stream</span>
           </div>
-          <div className="font-mono text-[11px] text-slate-400 space-y-2 h-40 overflow-y-auto custom-scrollbar pr-4">
+          <div className="font-mono text-xs text-slate-400 space-y-1.5 h-44 overflow-y-auto custom-scrollbar pr-4">
             {logs.map((log, i) => (
-              <div key={i} className="flex gap-4">
-                <span className="text-slate-700 shrink-0">[{i.toString().padStart(2, '0')}]</span>
-                <span className={`${log.includes('✅') || log.includes('✨') || log.includes('🎯') ? 'text-emerald-400' : log.includes('Agent') ? 'text-blue-400' : 'text-slate-400'}`}>{log}</span>
+              <div key={i} className="flex gap-3 py-1 px-2 rounded hover:bg-slate-700/50 transition-colors">
+                <span className="text-slate-600 shrink-0 w-6">{i.toString().padStart(2, '0')}</span>
+                <span className={`${log.includes('✅') || log.includes('✨') || log.includes('🎯') || log.includes('complete') ? 'text-emerald-400' : log.includes('❌') || log.includes('FAILURE') ? 'text-red-400' : log.includes('Agent') || log.includes('Launching') ? 'text-blue-400' : 'text-slate-300'}`}>{log}</span>
               </div>
             ))}
             <div ref={logEndRef} />

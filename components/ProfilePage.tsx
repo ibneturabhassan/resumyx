@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { ResumeData } from '../types';
-import { generateSummary } from '../services/geminiService';
+import { apiService } from '../services/apiService';
 
 interface Props {
   data: ResumeData;
@@ -9,10 +9,10 @@ interface Props {
 }
 
 const ProfilePage: React.FC<Props> = ({ data, onChange }) => {
-  const inputClass = "w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white focus:outline-none transition-all text-sm text-slate-900 shadow-sm placeholder-slate-400";
-  const labelClass = "block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wider ml-1";
-  const sectionClass = "bg-white p-8 rounded-3xl shadow-sm border border-slate-200 mb-8";
-  const btnClass = "px-5 py-2.5 bg-slate-900 text-white rounded-xl hover:bg-black transition-all text-sm font-bold shadow-md active:scale-95";
+  const inputClass = "w-full p-3.5 bg-slate-50/80 border border-slate-200 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white focus:outline-none transition-all duration-200 text-sm text-slate-800 shadow-sm placeholder-slate-400 hover:border-slate-300 hover:bg-slate-50";
+  const labelClass = "block text-xs font-semibold text-slate-500 uppercase mb-2.5 tracking-wide";
+  const sectionClass = "bg-white p-8 rounded-2xl shadow-md border border-slate-100 mb-8 hover:shadow-lg transition-shadow duration-300";
+  const btnClass = "px-5 py-2.5 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all duration-200 text-sm font-semibold shadow-lg hover:shadow-xl active:scale-[0.98] hover:-translate-y-0.5";
 
   const updatePersonalInfo = (field: string, value: string) => {
     onChange({ ...data, personalInfo: { ...data.personalInfo, [field]: value } });
@@ -46,7 +46,12 @@ const ProfilePage: React.FC<Props> = ({ data, onChange }) => {
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
       {/* Personal Info */}
       <section className={sectionClass}>
-        <h2 className="text-2xl font-black text-slate-900 mb-6">Personal Details</h2>
+        <div className="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100">
+          <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white">
+            <i className="fas fa-user text-xs"></i>
+          </div>
+          <h2 className="text-xl font-bold text-slate-800">Personal Details</h2>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="md:col-span-2">
             <label className={labelClass}>Full Name</label>
@@ -77,16 +82,21 @@ const ProfilePage: React.FC<Props> = ({ data, onChange }) => {
 
       {/* Summary */}
       <section className={sectionClass}>
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-black text-slate-900">Summary</h2>
-          <button 
+        <div className="flex justify-between items-center mb-6 pb-4 border-b border-slate-100">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-violet-600 flex items-center justify-center text-white">
+              <i className="fas fa-align-left text-xs"></i>
+            </div>
+            <h2 className="text-xl font-bold text-slate-800">Summary</h2>
+          </div>
+          <button
             onClick={async () => {
-              const res = await generateSummary(JSON.stringify(data.experience));
+              const res = await apiService.generateSummary(JSON.stringify(data.experience));
               onChange({...data, summary: res});
             }}
-            className="text-xs font-bold text-blue-600 bg-blue-50 px-4 py-2 rounded-full hover:bg-blue-100 border border-blue-100"
+            className="text-xs font-semibold text-blue-600 bg-blue-50 px-4 py-2.5 rounded-xl hover:bg-blue-100 border border-blue-100 transition-all duration-200 hover:shadow-md active:scale-[0.98]"
           >
-            <i className="fas fa-sparkles mr-2"></i>AI Generate
+            <i className="fas fa-wand-magic-sparkles mr-2"></i>AI Generate
           </button>
         </div>
         <textarea 
@@ -99,7 +109,12 @@ const ProfilePage: React.FC<Props> = ({ data, onChange }) => {
 
       {/* Skills */}
       <section className={sectionClass}>
-        <h2 className="text-2xl font-black text-slate-900 mb-6">Technical Skills</h2>
+        <div className="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100">
+          <div className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center text-white">
+            <i className="fas fa-code text-xs"></i>
+          </div>
+          <h2 className="text-xl font-bold text-slate-800">Technical Skills</h2>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {Object.keys(skillsData).map((key) => (
             <div key={key}>
@@ -119,15 +134,22 @@ const ProfilePage: React.FC<Props> = ({ data, onChange }) => {
       </section>
 
       {/* Experience */}
-      <section className="mb-12">
-        <div className="flex justify-between items-end mb-6">
-          <h2 className="text-2xl font-black text-slate-900">Work History</h2>
-          <button onClick={() => addItem('experience')} className={btnClass}>+ Add Position</button>
+      <section className={sectionClass}>
+        <div className="flex justify-between items-center mb-6 pb-4 border-b border-slate-100">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-amber-600 flex items-center justify-center text-white">
+              <i className="fas fa-briefcase text-xs"></i>
+            </div>
+            <h2 className="text-xl font-bold text-slate-800">Work History</h2>
+          </div>
+          <button onClick={() => addItem('experience')} className={btnClass}>
+            <i className="fas fa-plus mr-2"></i>Add Position
+          </button>
         </div>
-        <div className="space-y-6">
+        <div className="space-y-4">
           {(data.experience || []).map((exp) => (
-            <div key={exp.id} className="p-8 border border-slate-200 rounded-3xl bg-white shadow-sm relative group">
-              <button onClick={() => removeItem('experience', exp.id)} className="absolute top-6 right-6 text-slate-300 hover:text-red-500 p-2"><i className="fas fa-trash"></i></button>
+            <div key={exp.id} className="p-6 border border-slate-200 rounded-xl bg-slate-50/50 relative group hover:bg-slate-50 transition-all duration-200">
+              <button onClick={() => removeItem('experience', exp.id)} className="absolute top-6 right-6 w-9 h-9 rounded-lg bg-slate-50 text-slate-400 hover:bg-red-50 hover:text-red-500 flex items-center justify-center transition-all duration-200"><i className="fas fa-trash-can text-sm"></i></button>
               <div className="grid grid-cols-2 gap-6">
                 <div className="col-span-2">
                   <label className={labelClass}>Company</label>
@@ -164,15 +186,22 @@ const ProfilePage: React.FC<Props> = ({ data, onChange }) => {
       </section>
 
       {/* Projects */}
-      <section className="mb-12">
-        <div className="flex justify-between items-end mb-6">
-          <h2 className="text-2xl font-black text-slate-900">Projects</h2>
-          <button onClick={() => addItem('projects')} className={btnClass}>+ Add Project</button>
+      <section className={sectionClass}>
+        <div className="flex justify-between items-center mb-6 pb-4 border-b border-slate-100">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-cyan-600 flex items-center justify-center text-white">
+              <i className="fas fa-diagram-project text-xs"></i>
+            </div>
+            <h2 className="text-xl font-bold text-slate-800">Projects</h2>
+          </div>
+          <button onClick={() => addItem('projects')} className={btnClass}>
+            <i className="fas fa-plus mr-2"></i>Add Project
+          </button>
         </div>
-        <div className="space-y-6">
+        <div className="space-y-4">
           {(data.projects || []).map((proj) => (
-            <div key={proj.id} className="p-8 border border-slate-200 rounded-3xl bg-white shadow-sm relative group">
-              <button onClick={() => removeItem('projects', proj.id)} className="absolute top-6 right-6 text-slate-300 hover:text-red-500 p-2"><i className="fas fa-trash"></i></button>
+            <div key={proj.id} className="p-6 border border-slate-200 rounded-xl bg-slate-50/50 relative group hover:bg-slate-50 transition-all duration-200">
+              <button onClick={() => removeItem('projects', proj.id)} className="absolute top-6 right-6 w-9 h-9 rounded-lg bg-slate-50 text-slate-400 hover:bg-red-50 hover:text-red-500 flex items-center justify-center transition-all duration-200"><i className="fas fa-trash-can text-sm"></i></button>
               <div className="grid grid-cols-2 gap-6">
                 <div className="col-span-2">
                   <label className={labelClass}>Project Name</label>
@@ -201,15 +230,22 @@ const ProfilePage: React.FC<Props> = ({ data, onChange }) => {
       </section>
 
       {/* Education */}
-      <section className="mb-12">
-        <div className="flex justify-between items-end mb-6">
-          <h2 className="text-2xl font-black text-slate-900">Education</h2>
-          <button onClick={() => addItem('education')} className={btnClass}>+ Add Education</button>
+      <section className={sectionClass}>
+        <div className="flex justify-between items-center mb-6 pb-4 border-b border-slate-100">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-rose-600 flex items-center justify-center text-white">
+              <i className="fas fa-graduation-cap text-xs"></i>
+            </div>
+            <h2 className="text-xl font-bold text-slate-800">Education</h2>
+          </div>
+          <button onClick={() => addItem('education')} className={btnClass}>
+            <i className="fas fa-plus mr-2"></i>Add Education
+          </button>
         </div>
-        <div className="space-y-6">
+        <div className="space-y-4">
           {(data.education || []).map((edu) => (
-            <div key={edu.id} className="p-8 border border-slate-200 rounded-3xl bg-white shadow-sm relative group">
-              <button onClick={() => removeItem('education', edu.id)} className="absolute top-6 right-6 text-slate-300 hover:text-red-500 p-2"><i className="fas fa-trash"></i></button>
+            <div key={edu.id} className="p-6 border border-slate-200 rounded-xl bg-slate-50/50 relative group hover:bg-slate-50 transition-all duration-200">
+              <button onClick={() => removeItem('education', edu.id)} className="absolute top-6 right-6 w-9 h-9 rounded-lg bg-slate-50 text-slate-400 hover:bg-red-50 hover:text-red-500 flex items-center justify-center transition-all duration-200"><i className="fas fa-trash-can text-sm"></i></button>
               <div className="grid grid-cols-2 gap-6">
                 <div className="col-span-2">
                   <label className={labelClass}>Institution</label>

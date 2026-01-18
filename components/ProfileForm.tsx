@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
-import { ResumeData, GenerationType } from '../types';
-import { generateResumeContent } from '../services/geminiService';
+import { ResumeData } from '../types';
+import { apiService } from '../services/apiService';
 
 interface Props {
   data: ResumeData;
@@ -21,8 +21,10 @@ const ProfileForm: React.FC<Props> = ({ data, onChange }) => {
   const handleAISummary = async () => {
     setLoading(true);
     try {
-      const prompt = `${data.personalInfo.fullName}, a Data Engineer with focus on ${data.skills.languages.join(', ')}`;
-      const result = await generateResumeContent(GenerationType.SUMMARY, prompt);
+      const experienceText = data.experience?.map(exp =>
+        `${exp.role} at ${exp.company}: ${exp.description.join(' ')}`
+      ).join('\n') || '';
+      const result = await apiService.generateSummary(experienceText);
       onChange({ ...data, summary: result });
     } catch (err) {
       console.error(err);
