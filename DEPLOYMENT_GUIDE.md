@@ -53,7 +53,9 @@ git push origin main
    - **Root Directory**: `backend`
    - **Environment**: `Python 3`
    - **Build Command**: `pip install -r requirements.txt`
-   - **Start Command**: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+   - **Start Command**: `bash start.sh`
+
+   **Important**: Use `bash start.sh` as the start command. This script properly handles the PORT environment variable. If you encounter port-related errors, see [RENDER_DEPLOYMENT_FIX.md](RENDER_DEPLOYMENT_FIX.md).
 
 5. Add Environment Variables:
    - `GEMINI_API_KEY`: Your Gemini API key
