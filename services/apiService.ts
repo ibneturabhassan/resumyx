@@ -1,6 +1,9 @@
 import { ResumeData } from '../types';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+const API_URL = import.meta.env.VITE_API_URL ||
+  (import.meta.env.MODE === 'production'
+    ? 'https://resumyx-api.onrender.com/api'
+    : 'http://localhost:8000/api');
 
 class APIService {
   private getAuthHeaders(): HeadersInit {
