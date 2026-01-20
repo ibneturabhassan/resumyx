@@ -3,7 +3,19 @@
     "allow": [
       "Bash(npm install:*)",
       "Bash(npm run dev:*)",
-      "Bash(claude mcp add:*)"
+      "Bash(claude mcp add:*)",
+      "mcp__render__update_environment_variables",
+      "mcp__render__list_deploys",
+      "mcp__render__get_deploy",
+      "Bash(timeout 30 bash:*)",
+      "Bash(curl:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git ls-tree:*)",
+      "Bash(npm run build:*)",
+      "Bash(ls:*)",
+      "Bash(node:*)"
     ]
   }
 }

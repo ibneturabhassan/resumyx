@@ -12,7 +12,7 @@ import CoverLetterPreview from './components/CoverLetterPreview';
 import AuthPage from './components/AuthPage';
 import { ResumeData, ViewMode } from './types';
 import { apiService } from './services/apiService';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { AuthProvider, useAuth } from './AuthContext';
 
 const PROFILE_KEY = 'resumyx_profile_data_v1';
 const JD_KEY = 'resumyx_target_jd_v1';

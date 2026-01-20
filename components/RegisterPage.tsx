@@ -1,27 +1,41 @@
 import React, { useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../AuthContext';
 
-interface LoginPageProps {
-  onSwitchToRegister: () => void;
+interface RegisterPageProps {
+  onSwitchToLogin: () => void;
 }
 
-const LoginPage: React.FC<LoginPageProps> = ({ onSwitchToRegister }) => {
-  const { login } = useAuth();
+const RegisterPage: React.FC<RegisterPageProps> = ({ onSwitchToLogin }) => {
+  const { register } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    // Validate passwords match
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
+    // Validate password length
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      await login(email, password);
+      await register(email, password);
       // Success - AuthContext will handle redirect
     } catch (err: any) {
-      setError(err.message || 'Login failed. Please check your credentials.');
+      setError(err.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -35,11 +49,11 @@ const LoginPage: React.FC<LoginPageProps> = ({ onSwitchToRegister }) => {
           <div className="w-16 h-16 bg-slate-900 rounded-2xl flex items-center justify-center text-white font-bold text-2xl mx-auto mb-4 shadow-lg">
             R
           </div>
-          <h1 className="text-3xl font-bold text-slate-900">Welcome Back</h1>
-          <p className="text-slate-600 mt-2">Sign in to your Resumyx account</p>
+          <h1 className="text-3xl font-bold text-slate-900">Create Account</h1>
+          <p className="text-slate-600 mt-2">Start building your perfect resume</p>
         </div>
 
-        {/* Login Form */}
+        {/* Register Form */}
         <div className="bg-white rounded-2xl shadow-xl p-8 border border-slate-200">
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
@@ -78,6 +92,25 @@ const LoginPage: React.FC<LoginPageProps> = ({ onSwitchToRegister }) => {
                 disabled={loading}
                 minLength={6}
               />
+              <p className="text-xs text-slate-500 mt-1">
+                Minimum 6 characters
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 mb-2">
+                Confirm Password
+              </label>
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 focus:outline-none transition-all text-slate-900 placeholder-slate-400"
+                placeholder="••••••••"
+                required
+                disabled={loading}
+                minLength={6}
+              />
             </div>
 
             <button
@@ -88,12 +121,12 @@ const LoginPage: React.FC<LoginPageProps> = ({ onSwitchToRegister }) => {
               {loading ? (
                 <>
                   <i className="fas fa-circle-notch fa-spin"></i>
-                  <span>Signing in...</span>
+                  <span>Creating account...</span>
                 </>
               ) : (
                 <>
-                  <i className="fas fa-sign-in-alt"></i>
-                  <span>Sign In</span>
+                  <i className="fas fa-user-plus"></i>
+                  <span>Create Account</span>
                 </>
               )}
             </button>
@@ -101,40 +134,26 @@ const LoginPage: React.FC<LoginPageProps> = ({ onSwitchToRegister }) => {
 
           <div className="mt-6 text-center">
             <p className="text-sm text-slate-600">
-              Don't have an account?{' '}
+              Already have an account?{' '}
               <button
-                onClick={onSwitchToRegister}
+                onClick={onSwitchToLogin}
                 className="text-blue-600 font-semibold hover:text-blue-700 transition-colors"
               >
-                Create one
+                Sign in
               </button>
             </p>
           </div>
         </div>
 
-        {/* Features */}
-        <div className="mt-8 text-center space-y-3">
-          <p className="text-sm font-semibold text-slate-500 uppercase tracking-wide">
-            Why Resumyx?
-          </p>
-          <div className="flex flex-wrap justify-center gap-4 text-xs text-slate-600">
-            <div className="flex items-center gap-2">
-              <i className="fas fa-robot text-blue-600"></i>
-              <span>AI-Powered</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <i className="fas fa-shield-check text-emerald-600"></i>
-              <span>Secure</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <i className="fas fa-cloud text-purple-600"></i>
-              <span>Cloud Sync</span>
-            </div>
-          </div>
+        {/* Terms */}
+        <div className="mt-6 text-center text-xs text-slate-500">
+          By creating an account, you agree to our{' '}
+          <span className="text-slate-700 font-medium">Terms of Service</span> and{' '}
+          <span className="text-slate-700 font-medium">Privacy Policy</span>
         </div>
       </div>
     </div>
   );
 };
 
-export default LoginPage;
+export default RegisterPage;
