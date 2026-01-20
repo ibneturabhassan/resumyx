@@ -9,8 +9,10 @@ import DiagnosticsPage from './components/DiagnosticsPage';
 import CoverLetterPage from './components/CoverLetterPage';
 import ResumePreview from './components/ResumePreview';
 import CoverLetterPreview from './components/CoverLetterPreview';
+import AuthPage from './components/AuthPage';
 import { ResumeData, ViewMode } from './types';
 import { apiService } from './services/apiService';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 const PROFILE_KEY = 'resumyx_profile_data_v1';
 const JD_KEY = 'resumyx_target_jd_v1';
@@ -81,7 +83,8 @@ const safeLoad = (key: string, defaultVal: any): any => {
   }
 };
 
-const App: React.FC = () => {
+const MainApp: React.FC = () => {
+  const { isAuthenticated, loading: authLoading, user, logout } = useAuth();
   const [profileData, setProfileData] = useState<ResumeData>(() => safeLoad(PROFILE_KEY, initialData));
   const [targetJd, setTargetJd] = useState<string>(() => localStorage.getItem(JD_KEY) || '');
   const [targetInstructions, setTargetInstructions] = useState<string>('');
@@ -337,6 +340,26 @@ const App: React.FC = () => {
     [ViewMode.DIAGNOSTICS]: 'System'
   };
 
+  // Show loading while checking authentication
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-slate-100 flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="w-16 h-16 rounded-xl bg-blue-600 flex items-center justify-center text-white text-2xl mx-auto">
+            <i className="fas fa-circle-notch fa-spin"></i>
+          </div>
+          <h2 className="text-xl font-bold text-slate-800">Loading...</h2>
+        </div>
+      </div>
+    );
+  }
+
+  // Show auth page if not authenticated
+  if (!isAuthenticated) {
+    return <AuthPage />;
+  }
+
+  // Show loading for profile data
   if (isLoading) {
     return (
       <div className="min-h-screen bg-slate-100 flex items-center justify-center">
@@ -387,6 +410,18 @@ const App: React.FC = () => {
             </button>
           ))}
         </nav>
+
+        {/* User menu at bottom */}
+        <div className="w-full px-2 pb-2">
+          <button
+            onClick={logout}
+            className="w-full py-3 flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200"
+            title={`Logout (${user?.email})`}
+          >
+            <i className="fas fa-sign-out-alt text-sm"></i>
+            <span className="text-[10px] font-medium">Logout</span>
+          </button>
+        </div>
       </aside>
 
       <main className="flex-1 flex min-w-0 no-print">
@@ -504,6 +539,15 @@ const App: React.FC = () => {
         </div>
       </main>
     </div>
+  );
+};
+
+// Wrap MainApp with AuthProvider
+const App: React.FC = () => {
+  return (
+    <AuthProvider>
+      <MainApp />
+    </AuthProvider>
   );
 };
 

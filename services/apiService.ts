@@ -3,14 +3,37 @@ import { ResumeData } from '../types';
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
 class APIService {
+  private getAuthHeaders(): HeadersInit {
+    const token = localStorage.getItem('access_token');
+    return token ? { 'Authorization': `Bearer ${token}` } : {};
+  }
+
   private async request(endpoint: string, options: RequestInit = {}) {
     const response = await fetch(`${API_URL}${endpoint}`, {
       ...options,
       headers: {
         'Content-Type': 'application/json',
+        ...this.getAuthHeaders(),
         ...options.headers,
       },
     });
+
+    // Handle 401 Unauthorized - token expired
+    if (response.status === 401) {
+      // Try to refresh token
+      const refreshed = await this.tryRefreshToken();
+      if (refreshed) {
+        // Retry the original request with new token
+        return this.request(endpoint, options);
+      } else {
+        // Refresh failed, redirect to login
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        localStorage.removeItem('user');
+        window.location.href = '/';
+        throw new Error('Session expired. Please login again.');
+      }
+    }
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({ detail: 'Request failed' }));
@@ -18,6 +41,30 @@ class APIService {
     }
 
     return response.json();
+  }
+
+  private async tryRefreshToken(): Promise<boolean> {
+    const refreshToken = localStorage.getItem('refresh_token');
+    if (!refreshToken) return false;
+
+    try {
+      const response = await fetch(`${API_URL}/auth/refresh`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refresh_token: refreshToken })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem('access_token', data.access_token);
+        localStorage.setItem('refresh_token', data.refresh_token);
+        return true;
+      }
+    } catch (error) {
+      console.error('Token refresh failed:', error);
+    }
+
+    return false;
   }
 
   // Profile endpoints
