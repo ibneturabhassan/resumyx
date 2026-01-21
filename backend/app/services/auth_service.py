@@ -37,7 +37,7 @@ class AuthService:
                     "user": {
                         "id": response.user.id,
                         "email": response.user.email,
-                        "created_at": response.user.created_at
+                        "created_at": str(response.user.created_at)
                     },
                     "session": {
                         "access_token": response.session.access_token if response.session else None,
@@ -80,7 +80,7 @@ class AuthService:
                     "user": {
                         "id": response.user.id,
                         "email": response.user.email,
-                        "created_at": response.user.created_at
+                        "created_at": str(response.user.created_at)
                     },
                     "session": {
                         "access_token": response.session.access_token,
