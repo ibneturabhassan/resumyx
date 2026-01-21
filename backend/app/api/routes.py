@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, status
 from app.models.resume import (
     ResumeProfile,
     ResumeData,
+    TailoredResumeData,
     TailorRequest,
     CoverLetterRequest,
     ATSScoreResponse
@@ -75,8 +76,9 @@ async def tailor_resume(request: TailorRequest):
     try:
         # Tailor each section
         tailored_summary = await gemini_service.tailor_summary(
-            request.profileData.summary,
+            request.profileData.additionalInfo,
             request.profileData.skills,
+            request.profileData.experience,
             request.jobDescription
         )
 
@@ -101,12 +103,16 @@ async def tailor_resume(request: TailorRequest):
         )
 
         # Create tailored resume data
-        tailored_data = request.profileData.model_copy()
-        tailored_data.summary = tailored_summary
-        tailored_data.experience = tailored_experience
-        tailored_data.skills = tailored_skills
-        tailored_data.projects = tailored_projects
-        tailored_data.education = tailored_education
+        tailored_data = TailoredResumeData(
+            personalInfo=request.profileData.personalInfo,
+            summary=tailored_summary,
+            coverLetter=request.profileData.coverLetter,
+            skills=tailored_skills,
+            experience=tailored_experience,
+            education=tailored_education,
+            projects=tailored_projects,
+            certifications=request.profileData.certifications
+        )
 
         return {"tailoredResume": tailored_data.model_dump()}
 

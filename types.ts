@@ -33,6 +33,29 @@ export interface ResumeData {
     linkedin: string;
     github: string;
   };
+  additionalInfo: string;
+  coverLetter: string;
+  skills: {
+    languages: string[];
+    databases: string[];
+    cloud: string[];
+    tools: string[];
+  };
+  experience: Experience[];
+  education: Education[];
+  projects: Project[];
+  certifications: string[];
+}
+
+export interface TailoredResumeData {
+  personalInfo: {
+    fullName: string;
+    email: string;
+    phone: string;
+    location: string;
+    linkedin: string;
+    github: string;
+  };
   summary: string;
   coverLetter: string;
   skills: {

@@ -1,9 +1,9 @@
 
 import React from 'react';
-import { ResumeData } from '../types';
+import { ResumeData, TailoredResumeData } from '../types';
 
 interface Props {
-  data: ResumeData;
+  data: ResumeData | TailoredResumeData;
   highlightedSection?: string | null;
 }
 
@@ -147,13 +147,15 @@ const ResumePreview: React.FC<Props> = ({ data, highlightedSection }) => {
           </div>
         </header>
 
-        {/* Summary */}
-        <section className={sectionClass('Summary')}>
-          <h2>Professional Profile</h2>
-          <div className="section-content leading-relaxed font-medium">
-            {data.summary || 'Senior Data Engineer with expertise in building scalable data architectures.'}
-          </div>
-        </section>
+        {/* Summary - Only show if it exists (tailored resume) */}
+        {'summary' in data && data.summary && (
+          <section className={sectionClass('Summary')}>
+            <h2>Professional Profile</h2>
+            <div className="section-content leading-relaxed font-medium">
+              {data.summary}
+            </div>
+          </section>
+        )}
 
         {/* Skills */}
         <section className={sectionClass('Skills')}>

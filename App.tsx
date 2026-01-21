@@ -36,7 +36,7 @@ const initialData: ResumeData = {
     linkedin: 'linkedin.com/in/alexrivera-data',
     github: 'github.com/arivera-data'
   },
-  summary: 'Senior Data Engineer with 6+ years of experience building scalable ETL pipelines and distributed systems. Expert in architecting high-performance data lakes and real-time streaming solutions using Spark, Kafka, and AWS. Proven track record of reducing data latency by 40% and optimizing cloud infrastructure costs.',
+  additionalInfo: 'I have 6+ years of experience in data engineering, specializing in building scalable ETL pipelines and distributed systems. I am passionate about optimizing data workflows and have a strong background in cloud architecture. I have led multiple teams and mentored junior engineers. I am looking for senior or lead data engineering roles where I can make significant impact on data infrastructure.',
   coverLetter: '',
   skills: {
     languages: ['Python', 'SQL', 'Scala', 'Java', 'Go'],

@@ -39,7 +39,7 @@ class Project(BaseModel):
 
 class ResumeData(BaseModel):
     personalInfo: PersonalInfo
-    summary: str
+    additionalInfo: str = ""
     coverLetter: str = ""
     skills: Skills
     experience: List[Experience] = []
@@ -67,6 +67,16 @@ class CoverLetterRequest(BaseModel):
     profileData: ResumeData
     jobDescription: str
     instructions: Optional[str] = ""
+
+class TailoredResumeData(BaseModel):
+    personalInfo: PersonalInfo
+    summary: str
+    coverLetter: str = ""
+    skills: Skills
+    experience: List[Experience] = []
+    education: List[Education] = []
+    projects: List[Project] = []
+    certifications: List[str] = []
 
 class ATSScoreResponse(BaseModel):
     score: int

@@ -80,30 +80,33 @@ const ProfilePage: React.FC<Props> = ({ data, onChange }) => {
         </div>
       </section>
 
-      {/* Summary */}
+      {/* Additional Info */}
       <section className={sectionClass}>
         <div className="flex justify-between items-center mb-6 pb-4 border-b border-slate-100">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-violet-600 flex items-center justify-center text-white">
-              <i className="fas fa-align-left text-xs"></i>
+              <i className="fas fa-info-circle text-xs"></i>
             </div>
-            <h2 className="text-xl font-bold text-slate-800">Summary</h2>
+            <h2 className="text-xl font-bold text-slate-800">Additional Information</h2>
           </div>
-          <button
-            onClick={async () => {
-              const res = await apiService.generateSummary(JSON.stringify(data.experience));
-              onChange({...data, summary: res});
-            }}
-            className="text-xs font-semibold text-blue-600 bg-blue-50 px-4 py-2.5 rounded-xl hover:bg-blue-100 border border-blue-100 transition-all duration-200 hover:shadow-md active:scale-[0.98]"
-          >
-            <i className="fas fa-wand-magic-sparkles mr-2"></i>AI Generate
-          </button>
+          <div className="text-xs text-slate-500 bg-slate-50 px-4 py-2 rounded-lg border border-slate-200">
+            <i className="fas fa-lightbulb mr-1.5 text-amber-500"></i>
+            Used by AI to tailor your resume
+          </div>
         </div>
-        <textarea 
-          className={`${inputClass} h-32 resize-none`}
-          value={data.summary}
-          onChange={e => onChange({ ...data, summary: e.target.value })}
-          placeholder="Professional summary..."
+        <div className="mb-3">
+          <p className="text-sm text-slate-600 mb-2">
+            Share additional context about yourself that won't appear directly in your resume but will help the AI create tailored summaries for specific job roles.
+          </p>
+          <p className="text-xs text-slate-500 italic">
+            Examples: Career goals, preferred work environment, leadership experience, specific interests, unique strengths, etc.
+          </p>
+        </div>
+        <textarea
+          className={`${inputClass} h-40 resize-none`}
+          value={data.additionalInfo}
+          onChange={e => onChange({ ...data, additionalInfo: e.target.value })}
+          placeholder="e.g., I am passionate about building scalable systems and mentoring junior engineers. I thrive in fast-paced environments and have experience leading cross-functional teams. I am particularly interested in roles that involve architectural decision-making and technical leadership..."
         />
       </section>
 

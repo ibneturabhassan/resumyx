@@ -27,32 +27,37 @@ Return only the summary text, no additional formatting or labels."""
             return ""
 
     @staticmethod
-    async def tailor_summary(summary: str, skills: Skills, job_description: str) -> str:
-        """Tailor summary for specific job"""
-        prompt = f"""You are an expert resume writer. Tailor this professional summary to match the job description while keeping it authentic.
+    async def tailor_summary(additional_info: str, skills: Skills, experience: List[Experience], job_description: str) -> str:
+        """Generate a tailored professional summary based on additional info and job description"""
+        prompt = f"""You are an expert resume writer. Create a professional summary (2-3 sentences) tailored for this specific job.
 
-Current Summary: {summary}
+Additional Information About the Candidate:
+{additional_info}
 
 Skills: {json.dumps(skills.model_dump())}
+
+Work Experience Summary:
+{json.dumps([{'role': exp.role, 'company': exp.company, 'years': f"{exp.startDate} - {exp.endDate}"} for exp in experience])}
 
 Target Job Description:
 {job_description}
 
 Instructions:
-1. Maintain the candidate's core experience and achievements
-2. Emphasize skills and experiences most relevant to the job
+1. Create a compelling 2-3 sentence professional summary
+2. Highlight the most relevant skills and experiences for THIS specific job
 3. Use keywords from the job description naturally
-4. Keep it 2-3 sentences, professional and impactful
-5. Return ONLY the tailored summary text
+4. Make it impactful and tailored to the role requirements
+5. Base the summary on the candidate's additional information and experience
+6. Return ONLY the professional summary text, no extra commentary
 
-Tailored Summary:"""
+Professional Summary:"""
 
         try:
             response = model.generate_content(prompt)
             return response.text.strip()
         except Exception as e:
-            print(f"Error tailoring summary: {e}")
-            return summary
+            print(f"Error generating summary: {e}")
+            return "Experienced professional with a strong background in delivering impactful results."
 
     @staticmethod
     async def tailor_experience(experience: List[Experience], job_description: str) -> List[Experience]:
