@@ -15,7 +15,9 @@
       "Bash(git ls-tree:*)",
       "Bash(npm run build:*)",
       "Bash(ls:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "mcp__render__get_service",
+      "Bash(git reset:*)"
     ]
   }
 }

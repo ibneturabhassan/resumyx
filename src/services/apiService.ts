@@ -1,4 +1,4 @@
-import { ResumeData } from '../types';
+import { ResumeData } from '../types/index';
 
 const API_URL = import.meta.env.VITE_API_URL ||
   (import.meta.env.MODE === 'production'

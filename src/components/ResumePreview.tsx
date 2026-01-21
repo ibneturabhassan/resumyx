@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ResumeData, TailoredResumeData } from '../types';
+import { ResumeData, TailoredResumeData } from '../types/index';
 
 interface Props {
   data: ResumeData | TailoredResumeData;

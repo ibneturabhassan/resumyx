@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { ResumeData, GenerationType } from '../types';
+import { ResumeData, GenerationType } from '../types/index';
 import { generateResumeContent } from '../services/geminiService';
 
 interface Props {

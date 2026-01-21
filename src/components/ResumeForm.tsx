@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ResumeData } from '../types';
+import { ResumeData } from '../types/index';
 
 interface Props {
   data: ResumeData;

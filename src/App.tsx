@@ -10,9 +10,9 @@ import CoverLetterPage from './components/CoverLetterPage';
 import ResumePreview from './components/ResumePreview';
 import CoverLetterPreview from './components/CoverLetterPreview';
 import AuthPage from './components/AuthPage';
-import { ResumeData, ViewMode } from './types';
+import { ResumeData, ViewMode } from './types/index';
 import { apiService } from './services/apiService';
-import { AuthProvider, useAuth } from './AuthContext';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 const PROFILE_KEY = 'resumyx_profile_data_v1';
 const JD_KEY = 'resumyx_target_jd_v1';
