@@ -5,12 +5,14 @@ Handles user registration, login, and JWT token validation.
 import jwt
 from typing import Optional, Dict
 from datetime import datetime, timedelta
-from supabase import Client
+from supabase import Client, create_client
 from app.core.config import settings
 
 class AuthService:
     def __init__(self, supabase_client: Client):
         self.client = supabase_client
+        # Create separate client with anon key for auth operations
+        self.auth_client = create_client(settings.SUPABASE_URL, settings.SUPABASE_ANON_KEY)
         self.jwt_secret = settings.SUPABASE_JWT_SECRET
 
     async def register(self, email: str, password: str) -> Dict:
@@ -25,7 +27,7 @@ class AuthService:
             Dict with user data and session info
         """
         try:
-            response = self.client.auth.sign_up({
+            response = self.auth_client.auth.sign_up({
                 "email": email,
                 "password": password
             })
@@ -68,7 +70,7 @@ class AuthService:
             Dict with user data and session tokens
         """
         try:
-            response = self.client.auth.sign_in_with_password({
+            response = self.auth_client.auth.sign_in_with_password({
                 "email": email,
                 "password": password
             })
@@ -108,7 +110,7 @@ class AuthService:
             Dict with new session tokens
         """
         try:
-            response = self.client.auth.refresh_session(refresh_token)
+            response = self.auth_client.auth.refresh_session(refresh_token)
 
             if response.session:
                 return {
@@ -137,7 +139,7 @@ class AuthService:
         """
         try:
             # Set the session for this request
-            self.client.auth.sign_out(access_token)
+            self.auth_client.auth.sign_out(access_token)
             return {"message": "Logged out successfully"}
         except Exception as e:
             # Even if Supabase logout fails, we can still clear client-side
