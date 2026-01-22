@@ -141,6 +141,28 @@ class APIService {
   async healthCheck() {
     return this.request('/health');
   }
+
+  // AI Settings endpoints
+  async getAIProviders() {
+    return this.request('/ai/providers');
+  }
+
+  async getAISettings() {
+    return this.request('/ai/settings');
+  }
+
+  async saveAISettings(config: any) {
+    return this.request('/ai/settings', {
+      method: 'POST',
+      body: JSON.stringify(config),
+    });
+  }
+
+  async deleteAISettings() {
+    return this.request('/ai/settings', {
+      method: 'DELETE',
+    });
+  }
 }
 
 export const apiService = new APIService();

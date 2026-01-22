@@ -74,6 +74,7 @@ export enum ViewMode {
   PROFILE = 'profile',
   AI_BUILD = 'ai_build',
   COVER_LETTER = 'cover_letter',
+  AI_SETTINGS = 'ai_settings',
   DIAGNOSTICS = 'diagnostics'
 }
 

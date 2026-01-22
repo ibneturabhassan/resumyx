@@ -7,6 +7,7 @@ import ProfilePage from './components/ProfilePage';
 import AIBuildPage from './components/AIBuildPage';
 import DiagnosticsPage from './components/DiagnosticsPage';
 import CoverLetterPage from './components/CoverLetterPage';
+import AISettingsPage from './components/AISettingsPage';
 import ResumePreview from './components/ResumePreview';
 import CoverLetterPreview from './components/CoverLetterPreview';
 import AuthPage from './components/AuthPage';
@@ -337,6 +338,7 @@ const MainApp: React.FC = () => {
     [ViewMode.PROFILE]: 'Profile',
     [ViewMode.AI_BUILD]: 'Tailor',
     [ViewMode.COVER_LETTER]: 'Letter',
+    [ViewMode.AI_SETTINGS]: 'AI',
     [ViewMode.DIAGNOSTICS]: 'System'
   };
 
@@ -395,6 +397,7 @@ const MainApp: React.FC = () => {
             { mode: ViewMode.PROFILE, icon: 'fa-user' },
             { mode: ViewMode.AI_BUILD, icon: 'fa-wand-magic-sparkles' },
             { mode: ViewMode.COVER_LETTER, icon: 'fa-file-lines' },
+            { mode: ViewMode.AI_SETTINGS, icon: 'fa-robot' },
             { mode: ViewMode.DIAGNOSTICS, icon: 'fa-gear' }
           ].map(({ mode, icon }) => (
             <button
@@ -434,12 +437,14 @@ const MainApp: React.FC = () => {
                     {view === ViewMode.PROFILE ? 'Your Profile' :
                      view === ViewMode.AI_BUILD ? 'AI Resume Tailor' :
                      view === ViewMode.COVER_LETTER ? 'Cover Letter' :
+                     view === ViewMode.AI_SETTINGS ? 'AI Provider Settings' :
                      'System Diagnostics'}
                   </h1>
                   <p className="text-sm text-slate-500 mt-1">
                     {view === ViewMode.PROFILE ? 'Manage your personal information and experience' :
                      view === ViewMode.AI_BUILD ? 'Optimize your resume for any job description' :
                      view === ViewMode.COVER_LETTER ? 'Generate a personalized cover letter' :
+                     view === ViewMode.AI_SETTINGS ? 'Configure your AI provider and model preferences' :
                      'Check API connection status'}
                   </p>
                 </div>
@@ -483,6 +488,7 @@ const MainApp: React.FC = () => {
               />
             )}
             {view === ViewMode.DIAGNOSTICS && <DiagnosticsPage />}
+            {view === ViewMode.AI_SETTINGS && <AISettingsPage />}
           </div>
         </div>
 
