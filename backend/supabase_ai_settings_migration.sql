@@ -1,7 +1,7 @@
 -- Create AI settings table for storing user AI provider preferences
 CREATE TABLE IF NOT EXISTS ai_settings (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    user_id TEXT NOT NULL UNIQUE,
+    user_id UUID NOT NULL UNIQUE,
     provider_config JSONB NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -19,25 +19,25 @@ ALTER TABLE ai_settings ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can view their own AI settings"
     ON ai_settings
     FOR SELECT
-    USING (user_id::uuid = auth.uid());
+    USING (user_id = auth.uid());
 
 -- Policy: Users can insert their own AI settings
 CREATE POLICY "Users can insert their own AI settings"
     ON ai_settings
     FOR INSERT
-    WITH CHECK (user_id::uuid = auth.uid());
+    WITH CHECK (user_id = auth.uid());
 
 -- Policy: Users can update their own AI settings
 CREATE POLICY "Users can update their own AI settings"
     ON ai_settings
     FOR UPDATE
-    USING (user_id::uuid = auth.uid());
+    USING (user_id = auth.uid());
 
 -- Policy: Users can delete their own AI settings
 CREATE POLICY "Users can delete their own AI settings"
     ON ai_settings
     FOR DELETE
-    USING (user_id::uuid = auth.uid());
+    USING (user_id = auth.uid());
 
 -- Add comment
 COMMENT ON TABLE ai_settings IS 'Stores user preferences for AI providers (Gemini, OpenAI, OpenRouter)';
