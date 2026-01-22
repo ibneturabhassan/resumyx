@@ -35,6 +35,38 @@ const ResumeForm: React.FC<Props> = ({ data, onChange }) => {
   const inputClass = "w-full p-3 bg-white border border-slate-300 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:outline-none transition-all text-sm text-slate-900 shadow-sm placeholder-slate-400";
   const labelClass = "block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wider ml-1";
   const btnClass = "px-6 py-2.5 bg-slate-900 text-white rounded-xl hover:bg-black transition-all text-sm font-bold shadow-md active:scale-95";
+  const skillsData = data.skills || { languages: [], databases: [], cloud: [], tools: [] };
+  const normalizedSkillList = (value: string) => {
+    const tokens = value
+      .split(/[,\\n]/g)
+      .map((item) => item.trim())
+      .filter(Boolean);
+
+    const unique = new Map<string, string>();
+    tokens.forEach((item) => {
+      const key = item.toLowerCase();
+      if (!unique.has(key)) {
+        unique.set(key, item);
+      }
+    });
+
+    return Array.from(unique.values());
+  };
+
+  const deriveSkillsText = () => {
+    if (data.skillsRaw?.trim()) {
+      return data.skillsRaw;
+    }
+
+    const combined = [
+      ...skillsData.languages,
+      ...skillsData.databases,
+      ...skillsData.cloud,
+      ...skillsData.tools
+    ];
+
+    return Array.from(new Set(combined)).join(', ');
+  };
 
   return (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -42,26 +74,29 @@ const ResumeForm: React.FC<Props> = ({ data, onChange }) => {
       <section className="bg-white p-8 rounded-3xl shadow-sm border border-slate-200">
         <h2 className="text-2xl font-black text-slate-900 mb-2">Technical Skills</h2>
         <p className="text-sm text-slate-500 mb-8 font-medium">List your tools and technologies for ATS parsing.</p>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {[
-            { key: 'languages', label: 'Programming Languages' },
-            { key: 'databases', label: 'Databases & Storage' },
-            { key: 'cloud', label: 'Cloud Platforms' },
-            { key: 'tools', label: 'Tools & Frameworks' }
-          ].map((cat) => (
-            <div key={cat.key}>
-              <label className={labelClass}>{cat.label}</label>
-              <input 
-                className={inputClass}
-                placeholder={`e.g. ${cat.key === 'languages' ? 'Python, SQL, Scala' : 'AWS, GCP, Azure'}`}
-                value={data.skills[cat.key as keyof typeof data.skills].join(', ')}
-                onChange={e => onChange({
-                  ...data,
-                  skills: { ...data.skills, [cat.key]: e.target.value.split(',').map(s => s.trim()).filter(s => s !== '') }
-                })}
-              />
-            </div>
-          ))}
+        <div className="space-y-3">
+          <label className={labelClass}>Skills (comma separated)</label>
+          <input
+            className={inputClass}
+            placeholder="e.g. Python, SQL, Spark, AWS, Kubernetes"
+            value={deriveSkillsText()}
+            onChange={(e) => {
+              const normalized = normalizedSkillList(e.target.value);
+              onChange({
+                ...data,
+                skillsRaw: e.target.value,
+                skills: {
+                  languages: [],
+                  databases: [],
+                  cloud: [],
+                  tools: normalized
+                }
+              });
+            }}
+          />
+          <p className="text-xs text-slate-500">
+            We’ll send this full list to the AI so it can categorize and format skills automatically.
+          </p>
         </div>
       </section>
 

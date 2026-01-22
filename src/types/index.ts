@@ -35,6 +35,7 @@ export interface ResumeData {
   };
   additionalInfo: string;
   coverLetter: string;
+  skillsRaw?: string;
   skills: {
     languages: string[];
     databases: string[];
