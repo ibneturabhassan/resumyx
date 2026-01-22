@@ -2,7 +2,7 @@
 Authentication middleware for FastAPI.
 Validates JWT tokens and attaches user info to requests.
 """
-from fastapi import Request, HTTPException, status
+from fastapi import Request, HTTPException, status, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from typing import Optional
 from app.services.auth_service import get_auth_service
@@ -10,7 +10,7 @@ from app.services.auth_service import get_auth_service
 security = HTTPBearer()
 
 async def get_current_user(
-    credentials: HTTPAuthorizationCredentials = None
+    credentials: HTTPAuthorizationCredentials = Depends(security)
 ) -> Optional[dict]:
     """
     Dependency to get current authenticated user from JWT token.

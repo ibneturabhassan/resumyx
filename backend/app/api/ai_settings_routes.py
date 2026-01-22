@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, status, Depends
 from app.models.ai_config import AIProviderConfig, GeminiConfig, OpenAIConfig, OpenRouterConfig
 from app.services.ai_settings_service import ai_settings_service
 from app.services.ai_service_factory import PROVIDER_MODELS
-from app.api.auth_routes import get_current_user
+from app.core.auth_middleware import get_current_user
 from typing import Dict, Any
 
 router = APIRouter()
@@ -10,7 +10,7 @@ router = APIRouter()
 @router.get("/ai/settings")
 async def get_ai_settings(current_user: Dict[str, Any] = Depends(get_current_user)):
     """Get user's AI provider settings"""
-    user_id = current_user["id"]
+    user_id = current_user["user_id"]
     settings = await ai_settings_service.get_user_settings(user_id)
 
     if not settings:
@@ -33,7 +33,7 @@ async def save_ai_settings(
     current_user: Dict[str, Any] = Depends(get_current_user)
 ):
     """Save user's AI provider settings"""
-    user_id = current_user["id"]
+    user_id = current_user["user_id"]
 
     # Validate API key is provided
     if not config.api_key or config.api_key.strip() == "":
@@ -55,7 +55,7 @@ async def save_ai_settings(
 @router.delete("/ai/settings")
 async def delete_ai_settings(current_user: Dict[str, Any] = Depends(get_current_user)):
     """Delete user's AI provider settings (revert to default)"""
-    user_id = current_user["id"]
+    user_id = current_user["user_id"]
 
     success = await ai_settings_service.delete_user_settings(user_id)
 
