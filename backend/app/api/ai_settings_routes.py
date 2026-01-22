@@ -10,8 +10,15 @@ router = APIRouter()
 @router.get("/ai/settings")
 async def get_ai_settings(current_user: Dict[str, Any] = Depends(get_current_user)):
     """Get user's AI provider settings"""
-    user_id = current_user["user_id"]
-    settings = await ai_settings_service.get_user_settings(user_id)
+    try:
+        print(f"DEBUG: current_user = {current_user}")
+        user_id = current_user["user_id"]
+        print(f"DEBUG: user_id = {user_id}")
+        settings = await ai_settings_service.get_user_settings(user_id)
+        print(f"DEBUG: settings = {settings}")
+    except Exception as e:
+        print(f"ERROR in get_ai_settings: {e}")
+        raise
 
     if not settings:
         # Return default Gemini settings if none configured

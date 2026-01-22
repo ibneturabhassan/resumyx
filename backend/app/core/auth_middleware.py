@@ -24,7 +24,10 @@ async def get_current_user(
     Raises:
         HTTPException: If token is invalid or expired
     """
+    print(f"DEBUG: get_current_user called, credentials={credentials}")
+
     if not credentials:
+        print("DEBUG: No credentials provided")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Not authenticated",
@@ -32,10 +35,16 @@ async def get_current_user(
         )
 
     token = credentials.credentials
+    print(f"DEBUG: Token received: {token[:20]}...")
+
     auth_service = get_auth_service()
+    print(f"DEBUG: Auth service: {auth_service}")
+
     user_data = auth_service.verify_token(token)
+    print(f"DEBUG: User data: {user_data}")
 
     if not user_data:
+        print("DEBUG: Token verification failed")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired token",
