@@ -59,7 +59,14 @@ const AIBuildPage: React.FC<Props> = ({ profileData, jd, setJd, onResult, onAgen
       addLog("🎓 Reviewing education section...");
 
       // Call backend API to tailor the entire resume at once
+      console.log('Sending tailor request with profile:', profileData);
       tailoredResume = await apiService.tailorResume(profileData, jd);
+      console.log('Received tailored resume:', tailoredResume);
+
+      if (!tailoredResume || typeof tailoredResume !== 'object') {
+        throw new Error('Invalid response from tailor API');
+      }
+
       onResult({ ...tailoredResume });
       addLog("✅ Resume tailoring complete!");
 
@@ -67,6 +74,12 @@ const AIBuildPage: React.FC<Props> = ({ profileData, jd, setJd, onResult, onAgen
       onAgentChange?.('Scoring');
       addLog("🎯 Calculating ATS compatibility score...");
       const scoreResult = await apiService.calculateATSScore(tailoredResume, jd);
+      console.log('Received ATS score:', scoreResult);
+
+      if (!scoreResult || typeof scoreResult.score !== 'number') {
+        throw new Error('Invalid response from ATS score API');
+      }
+
       onScoreUpdate?.(scoreResult.score);
       addLog(`🎯 Optimization complete! ATS Match Score: ${scoreResult.score}%`);
 
@@ -74,8 +87,10 @@ const AIBuildPage: React.FC<Props> = ({ profileData, jd, setJd, onResult, onAgen
       addLog("✨ Agent workflow finished successfully.");
       setDone(true);
     } catch (err: any) {
-      console.error(err);
+      console.error('Full error details:', err);
+      console.error('Error stack:', err.stack);
       addLog(`❌ CRITICAL FAILURE: ${err.message || 'Sequence interrupted'}`);
+      addLog(`💡 Check browser console for detailed error information`);
       onAgentChange?.(null);
     } finally {
       setLoading(false);

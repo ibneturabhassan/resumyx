@@ -56,8 +56,12 @@ Professional Summary:"""
             response = model.generate_content(prompt)
             return response.text.strip()
         except Exception as e:
-            print(f"Error generating summary: {e}")
-            return "Experienced professional with a strong background in delivering impactful results."
+            error_msg = str(e)
+            print(f"Error generating summary: {error_msg}")
+            # Check if it's a quota/rate limit error
+            if "429" in error_msg or "quota" in error_msg.lower() or "rate limit" in error_msg.lower():
+                raise Exception("Gemini API rate limit exceeded. Please wait a moment and try again.")
+            raise Exception(f"Failed to generate summary: {error_msg}")
 
     @staticmethod
     async def tailor_experience(experience: List[Experience], job_description: str) -> List[Experience]:
@@ -93,8 +97,15 @@ Return only the JSON array, no markdown or additional text:"""
             experiences_data = json.loads(text)
             return [Experience(**exp) for exp in experiences_data]
         except Exception as e:
-            print(f"Error tailoring experience: {e}")
-            return experience
+            error_msg = str(e)
+            print(f"Error tailoring experience: {error_msg}")
+            if "429" in error_msg or "quota" in error_msg.lower() or "rate limit" in error_msg.lower():
+                raise Exception("Gemini API rate limit exceeded. Please wait a moment and try again.")
+            # For JSON parsing errors, return original experience
+            if "JSON" in error_msg or "json" in error_msg:
+                print(f"JSON parsing error, returning original experience")
+                return experience
+            raise Exception(f"Failed to tailor experience: {error_msg}")
 
     @staticmethod
     async def tailor_skills(skills: Skills, job_description: str) -> Skills:
@@ -127,8 +138,13 @@ Return only the JSON object, no markdown or additional text:"""
             skills_data = json.loads(text)
             return Skills(**skills_data)
         except Exception as e:
-            print(f"Error tailoring skills: {e}")
-            return skills
+            error_msg = str(e)
+            print(f"Error tailoring skills: {error_msg}")
+            if "429" in error_msg or "quota" in error_msg.lower() or "rate limit" in error_msg.lower():
+                raise Exception("Gemini API rate limit exceeded. Please wait a moment and try again.")
+            if "JSON" in error_msg or "json" in error_msg:
+                return skills
+            raise Exception(f"Failed to tailor skills: {error_msg}")
 
     @staticmethod
     async def tailor_projects(projects: List[Project], job_description: str) -> List[Project]:
@@ -164,8 +180,13 @@ Return only the JSON array, no markdown or additional text:"""
             projects_data = json.loads(text)
             return [Project(**proj) for proj in projects_data]
         except Exception as e:
-            print(f"Error tailoring projects: {e}")
-            return projects
+            error_msg = str(e)
+            print(f"Error tailoring projects: {error_msg}")
+            if "429" in error_msg or "quota" in error_msg.lower() or "rate limit" in error_msg.lower():
+                raise Exception("Gemini API rate limit exceeded. Please wait a moment and try again.")
+            if "JSON" in error_msg or "json" in error_msg:
+                return projects
+            raise Exception(f"Failed to tailor projects: {error_msg}")
 
     @staticmethod
     async def tailor_education(education: List[Education], job_description: str) -> List[Education]:
@@ -205,8 +226,12 @@ Return only the JSON object:"""
 
             return json.loads(text)
         except Exception as e:
-            print(f"Error calculating ATS score: {e}")
-            return {"score": 0, "feedback": "Error calculating score"}
+            error_msg = str(e)
+            print(f"Error calculating ATS score: {error_msg}")
+            # Check if it's a quota/rate limit error
+            if "429" in error_msg or "quota" in error_msg.lower() or "rate limit" in error_msg.lower():
+                raise Exception("Gemini API rate limit exceeded. Please wait a moment and try again.")
+            raise Exception(f"Failed to calculate ATS score: {error_msg}")
 
     @staticmethod
     async def generate_cover_letter(
@@ -242,7 +267,10 @@ Return only the cover letter text, properly formatted with paragraphs:"""
             response = model.generate_content(prompt)
             return response.text.strip()
         except Exception as e:
-            print(f"Error generating cover letter: {e}")
-            return ""
+            error_msg = str(e)
+            print(f"Error generating cover letter: {error_msg}")
+            if "429" in error_msg or "quota" in error_msg.lower() or "rate limit" in error_msg.lower():
+                raise Exception("Gemini API rate limit exceeded. Please wait a moment and try again.")
+            raise Exception(f"Failed to generate cover letter: {error_msg}")
 
 gemini_service = GeminiService()
