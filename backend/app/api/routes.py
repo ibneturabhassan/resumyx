@@ -11,7 +11,8 @@ from app.services.supabase_service import supabase_service
 from app.services.ai_settings_service import ai_settings_service
 from app.services.ai_service_factory import AIServiceFactory
 from app.services.base_ai_service import BaseAIService
-from typing import Optional
+from app.core.auth_middleware import get_current_user
+from typing import Optional, Dict, Any
 
 router = APIRouter()
 
@@ -78,10 +79,13 @@ async def delete_profile(user_id: str):
 
 # AI endpoints
 @router.post("/ai/generate-summary")
-async def generate_summary(data: dict):
+async def generate_summary(
+    data: dict,
+    current_user: Dict[str, Any] = Depends(get_current_user)
+):
     """Generate professional summary from experience"""
     experience = data.get("experience", "")
-    user_id = data.get("userId")  # Optional: use user's preferred AI
+    user_id = current_user["user_id"]
 
     if not experience:
         raise HTTPException(
@@ -94,11 +98,14 @@ async def generate_summary(data: dict):
     return {"summary": summary}
 
 @router.post("/ai/tailor-resume")
-async def tailor_resume(request: TailorRequest):
+async def tailor_resume(
+    request: TailorRequest,
+    current_user: Dict[str, Any] = Depends(get_current_user)
+):
     """Tailor resume for specific job"""
     try:
-        # Get AI service (user-specific or default)
-        user_id = getattr(request.profileData, 'userId', None) if hasattr(request.profileData, 'userId') else None
+        # Get AI service using authenticated user
+        user_id = current_user["user_id"]
         ai_service = await get_ai_service_for_user(user_id)
 
         # Tailor each section using the selected AI provider
@@ -152,10 +159,13 @@ async def tailor_resume(request: TailorRequest):
         )
 
 @router.post("/ai/ats-score", response_model=ATSScoreResponse)
-async def calculate_ats_score(request: TailorRequest):
+async def calculate_ats_score(
+    request: TailorRequest,
+    current_user: Dict[str, Any] = Depends(get_current_user)
+):
     """Calculate ATS compatibility score"""
     try:
-        user_id = getattr(request.profileData, 'userId', None) if hasattr(request.profileData, 'userId') else None
+        user_id = current_user["user_id"]
         ai_service = await get_ai_service_for_user(user_id)
 
         result = await ai_service.calculate_ats_score(
@@ -172,10 +182,13 @@ async def calculate_ats_score(request: TailorRequest):
         )
 
 @router.post("/ai/generate-cover-letter")
-async def generate_cover_letter(request: CoverLetterRequest):
+async def generate_cover_letter(
+    request: CoverLetterRequest,
+    current_user: Dict[str, Any] = Depends(get_current_user)
+):
     """Generate personalized cover letter"""
     try:
-        user_id = getattr(request.profileData, 'userId', None) if hasattr(request.profileData, 'userId') else None
+        user_id = current_user["user_id"]
         ai_service = await get_ai_service_for_user(user_id)
 
         cover_letter = await ai_service.generate_cover_letter(
