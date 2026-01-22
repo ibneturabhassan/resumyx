@@ -2,6 +2,36 @@ import React, { useState, useEffect } from 'react';
 import { apiService } from '../services/apiService';
 import { AIProvider, AIProviderInfo, AIProviderConfig, AIModel } from '../types/ai-config';
 
+const fallbackProviders: AIProviderInfo[] = [
+  {
+    value: 'gemini',
+    label: 'Gemini',
+    description: 'Google Gemini models',
+    models: [
+      { value: 'gemini-2.0-flash-exp', label: 'Gemini 2.0 Flash', description: 'Fast multimodal model' },
+      { value: 'gemini-1.5-pro', label: 'Gemini 1.5 Pro', description: 'High quality reasoning model' }
+    ]
+  },
+  {
+    value: 'openai',
+    label: 'OpenAI',
+    description: 'OpenAI API models',
+    models: [
+      { value: 'gpt-4o-mini', label: 'GPT-4o mini', description: 'Efficient multimodal model' },
+      { value: 'gpt-4o', label: 'GPT-4o', description: 'Flagship multimodal model' }
+    ]
+  },
+  {
+    value: 'openrouter',
+    label: 'OpenRouter',
+    description: 'OpenRouter model hub',
+    models: [
+      { value: 'anthropic/claude-3.5-sonnet', label: 'Claude 3.5 Sonnet', description: 'High quality creative model' },
+      { value: 'meta-llama/llama-3.1-70b-instruct', label: 'Llama 3.1 70B', description: 'Open-source instruct model' }
+    ]
+  }
+];
+
 const AISettingsPage: React.FC = () => {
   const [providers, setProviders] = useState<AIProviderInfo[]>([]);
   const [selectedProvider, setSelectedProvider] = useState<AIProvider>('gemini');
@@ -24,10 +54,16 @@ const AISettingsPage: React.FC = () => {
   const loadProviders = async () => {
     try {
       const response = await apiService.getAIProviders();
-      setProviders(response.providers);
+      if (response?.providers?.length) {
+        setProviders(response.providers);
+      } else {
+        setProviders(fallbackProviders);
+        showMessage('error', 'AI providers are unavailable right now. Using a default list instead.');
+      }
     } catch (error) {
       console.error('Error loading providers:', error);
-      showMessage('error', 'Failed to load AI providers');
+      setProviders(fallbackProviders);
+      showMessage('error', 'Failed to load AI providers. Using a default list instead.');
     }
   };
 
