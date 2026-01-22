@@ -5,29 +5,39 @@ import { AIProvider, AIProviderInfo, AIProviderConfig, AIModel } from '../types/
 const fallbackProviders: AIProviderInfo[] = [
   {
     value: 'gemini',
-    label: 'Gemini',
-    description: 'Google Gemini models',
+    label: 'Google Gemini',
+    description: 'Google\'s multimodal AI models',
+    requiresKey: true,
     models: [
-      { value: 'gemini-2.0-flash-exp', label: 'Gemini 2.0 Flash', description: 'Fast multimodal model' },
-      { value: 'gemini-1.5-pro', label: 'Gemini 1.5 Pro', description: 'High quality reasoning model' }
+      { value: 'gemini-2.0-flash-exp', label: 'Gemini 2.0 Flash (Experimental)', description: 'Fast and efficient' },
+      { value: 'gemini-1.5-pro', label: 'Gemini 1.5 Pro', description: 'Most capable' },
+      { value: 'gemini-1.5-flash', label: 'Gemini 1.5 Flash', description: 'Fast responses' }
     ]
   },
   {
     value: 'openai',
     label: 'OpenAI',
-    description: 'OpenAI API models',
+    description: 'GPT models for natural language',
+    requiresKey: true,
     models: [
-      { value: 'gpt-4o-mini', label: 'GPT-4o mini', description: 'Efficient multimodal model' },
-      { value: 'gpt-4o', label: 'GPT-4o', description: 'Flagship multimodal model' }
+      { value: 'gpt-4o', label: 'GPT-4o', description: 'Most capable, multimodal' },
+      { value: 'gpt-4o-mini', label: 'GPT-4o Mini', description: 'Affordable and intelligent' },
+      { value: 'gpt-4-turbo', label: 'GPT-4 Turbo', description: 'Previous flagship' },
+      { value: 'gpt-3.5-turbo', label: 'GPT-3.5 Turbo', description: 'Fast and affordable' }
     ]
   },
   {
     value: 'openrouter',
     label: 'OpenRouter',
-    description: 'OpenRouter model hub',
+    description: 'Access multiple AI models',
+    requiresKey: true,
     models: [
-      { value: 'anthropic/claude-3.5-sonnet', label: 'Claude 3.5 Sonnet', description: 'High quality creative model' },
-      { value: 'meta-llama/llama-3.1-70b-instruct', label: 'Llama 3.1 70B', description: 'Open-source instruct model' }
+      { value: 'anthropic/claude-3.5-sonnet', label: 'Claude 3.5 Sonnet', description: 'Best overall' },
+      { value: 'anthropic/claude-3-opus', label: 'Claude 3 Opus', description: 'Most capable' },
+      { value: 'openai/gpt-4o', label: 'GPT-4o', description: 'Via OpenRouter' },
+      { value: 'google/gemini-pro-1.5', label: 'Gemini Pro 1.5', description: 'Via OpenRouter' },
+      { value: 'meta-llama/llama-3.1-70b-instruct', label: 'Llama 3.1 70B', description: 'Open source' },
+      { value: 'mistralai/mixtral-8x7b-instruct', label: 'Mixtral 8x7B', description: 'Fast and capable' }
     ]
   }
 ];
@@ -130,8 +140,8 @@ const AISettingsPage: React.FC = () => {
     }
   };
 
-  const handleResetToDefault = async () => {
-    if (!confirm('Reset to default Gemini settings? Your API key will be removed.')) {
+  const handleReset = async () => {
+    if (!confirm('Delete your AI settings? You will need to reconfigure before using AI features.')) {
       return;
     }
 
@@ -140,12 +150,12 @@ const AISettingsPage: React.FC = () => {
       await apiService.deleteAISettings();
       setSelectedProvider('gemini');
       setApiKey('');
-      setSelectedModel('gemini-2.0-flash-exp');
+      setSelectedModel('');
       setSiteUrl('');
       setAppName('Resumyx');
-      showMessage('success', 'Reset to default Gemini settings');
+      showMessage('success', 'AI settings removed. Please configure a provider to use AI features.');
     } catch (error: any) {
-      showMessage('error', error.message || 'Failed to reset settings');
+      showMessage('error', error.message || 'Failed to delete settings');
     } finally {
       setSaving(false);
     }
@@ -380,12 +390,12 @@ const AISettingsPage: React.FC = () => {
             )}
           </button>
           <button
-            onClick={handleResetToDefault}
+            onClick={handleReset}
             disabled={saving}
             className="px-6 py-4 rounded-xl font-semibold text-sm text-slate-600 bg-slate-100 hover:bg-slate-200 transition-all duration-200 flex items-center gap-2"
           >
-            <i className="fas fa-undo"></i>
-            <span>Reset to Default</span>
+            <i className="fas fa-trash-alt"></i>
+            <span>Delete Settings</span>
           </button>
         </div>
       </div>

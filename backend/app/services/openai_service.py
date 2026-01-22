@@ -1,19 +1,36 @@
-import google.generativeai as genai
+from openai import AsyncOpenAI
 from app.services.base_ai_service import BaseAIService
 from app.models.resume import ResumeData, Skills, Experience, Education, Project
 from typing import List
 import json
 
-class GeminiService(BaseAIService):
-    """Google Gemini AI provider implementation"""
+class OpenAIService(BaseAIService):
+    """OpenAI provider implementation"""
 
-    def __init__(self, api_key: str, model: str = "gemini-2.0-flash-exp"):
+    def __init__(self, api_key: str, model: str = "gpt-4o-mini"):
         super().__init__(api_key, model)
-        genai.configure(api_key=api_key)
-        self.client = genai.GenerativeModel(model)
+        self.client = AsyncOpenAI(api_key=api_key)
+
+    async def _generate_completion(self, prompt: str, response_format: str = "text") -> str:
+        """Helper method to generate completion"""
+        try:
+            response = await self.client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {"role": "system", "content": "You are an expert resume writer and career advisor."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.7,
+                max_tokens=2000
+            )
+            return response.choices[0].message.content.strip()
+        except Exception as e:
+            error_msg = str(e)
+            print(f"OpenAI API error: {error_msg}")
+            self._handle_rate_limit_error(error_msg)
+            raise Exception(f"OpenAI API error: {error_msg}")
 
     async def generate_summary(self, experience: str) -> str:
-        """Generate professional summary from experience"""
         prompt = f"""Based on the following work experience, generate a compelling 2-3 sentence professional summary for a resume. Focus on key achievements and skills.
 
 Experience:
@@ -21,14 +38,7 @@ Experience:
 
 Return only the summary text, no additional formatting or labels."""
 
-        try:
-            response = self.client.generate_content(prompt)
-            return response.text.strip()
-        except Exception as e:
-            error_msg = str(e)
-            print(f"Error generating summary: {error_msg}")
-            self._handle_rate_limit_error(error_msg)
-            raise Exception(f"Failed to generate summary: {error_msg}")
+        return await self._generate_completion(prompt)
 
     async def tailor_summary(
         self,
@@ -37,7 +47,6 @@ Return only the summary text, no additional formatting or labels."""
         experience: List[Experience],
         job_description: str
     ) -> str:
-        """Generate tailored professional summary"""
         prompt = f"""You are an expert resume writer. Create a professional summary (2-3 sentences) tailored for this specific job.
 
 Additional Information About the Candidate:
@@ -61,21 +70,13 @@ Instructions:
 
 Professional Summary:"""
 
-        try:
-            response = self.client.generate_content(prompt)
-            return response.text.strip()
-        except Exception as e:
-            error_msg = str(e)
-            print(f"Error generating summary: {error_msg}")
-            self._handle_rate_limit_error(error_msg)
-            raise Exception(f"Failed to generate summary: {error_msg}")
+        return await self._generate_completion(prompt)
 
     async def tailor_experience(
         self,
         experience: List[Experience],
         job_description: str
     ) -> List[Experience]:
-        """Tailor experience descriptions"""
         prompt = f"""You are an expert resume writer. Optimize these work experiences for the target job description.
 
 Current Experiences:
@@ -95,8 +96,7 @@ Instructions:
 Return only the JSON array, no markdown or additional text:"""
 
         try:
-            response = self.client.generate_content(prompt)
-            text = response.text.strip()
+            text = await self._generate_completion(prompt)
             # Remove markdown code blocks if present
             if text.startswith("```"):
                 text = text.split("```")[1]
@@ -111,18 +111,16 @@ Return only the JSON array, no markdown or additional text:"""
             return experience
         except Exception as e:
             error_msg = str(e)
-            print(f"Error tailoring experience: {error_msg}")
             self._handle_rate_limit_error(error_msg)
             if "JSON" in error_msg or "json" in error_msg:
                 return experience
-            raise Exception(f"Failed to tailor experience: {error_msg}")
+            raise
 
     async def tailor_skills(
         self,
         skills: Skills,
         job_description: str
     ) -> Skills:
-        """Tailor skills section"""
         prompt = f"""You are an expert resume writer. Optimize this skills section for the target job.
 
 Current Skills:
@@ -139,8 +137,7 @@ Instructions:
 Return only the JSON object, no markdown or additional text:"""
 
         try:
-            response = self.client.generate_content(prompt)
-            text = response.text.strip()
+            text = await self._generate_completion(prompt)
             if text.startswith("```"):
                 text = text.split("```")[1]
                 if text.startswith("json"):
@@ -153,18 +150,16 @@ Return only the JSON object, no markdown or additional text:"""
             return skills
         except Exception as e:
             error_msg = str(e)
-            print(f"Error tailoring skills: {error_msg}")
             self._handle_rate_limit_error(error_msg)
             if "JSON" in error_msg or "json" in error_msg:
                 return skills
-            raise Exception(f"Failed to tailor skills: {error_msg}")
+            raise
 
     async def tailor_projects(
         self,
         projects: List[Project],
         job_description: str
     ) -> List[Project]:
-        """Tailor project descriptions"""
         if not projects:
             return projects
 
@@ -185,8 +180,7 @@ Instructions:
 Return only the JSON array, no markdown or additional text:"""
 
         try:
-            response = self.client.generate_content(prompt)
-            text = response.text.strip()
+            text = await self._generate_completion(prompt)
             if text.startswith("```"):
                 text = text.split("```")[1]
                 if text.startswith("json"):
@@ -199,18 +193,17 @@ Return only the JSON array, no markdown or additional text:"""
             return projects
         except Exception as e:
             error_msg = str(e)
-            print(f"Error tailoring projects: {error_msg}")
             self._handle_rate_limit_error(error_msg)
             if "JSON" in error_msg or "json" in error_msg:
                 return projects
-            raise Exception(f"Failed to tailor projects: {error_msg}")
+            raise
 
     async def tailor_education(
         self,
         education: List[Education],
         job_description: str
     ) -> List[Education]:
-        """Tailor education section - typically no changes needed"""
+        # Education typically doesn't need AI tailoring
         return education
 
     async def calculate_ats_score(
@@ -218,7 +211,6 @@ Return only the JSON array, no markdown or additional text:"""
         resume_data: ResumeData,
         job_description: str
     ) -> dict:
-        """Calculate ATS compatibility score"""
         prompt = f"""You are an ATS (Applicant Tracking System) expert. Analyze this resume against the job description and provide an ATS compatibility score.
 
 Resume Data:
@@ -239,8 +231,7 @@ Provide a score from 0-100 and brief feedback. Return valid JSON:
 Return only the JSON object:"""
 
         try:
-            response = self.client.generate_content(prompt)
-            text = response.text.strip()
+            text = await self._generate_completion(prompt)
             if text.startswith("```"):
                 text = text.split("```")[1]
                 if text.startswith("json"):
@@ -250,9 +241,8 @@ Return only the JSON object:"""
             return json.loads(text)
         except Exception as e:
             error_msg = str(e)
-            print(f"Error calculating ATS score: {error_msg}")
             self._handle_rate_limit_error(error_msg)
-            raise Exception(f"Failed to calculate ATS score: {error_msg}")
+            raise
 
     async def generate_cover_letter(
         self,
@@ -260,7 +250,6 @@ Return only the JSON object:"""
         job_description: str,
         instructions: str = ""
     ) -> str:
-        """Generate personalized cover letter"""
         prompt = f"""You are an expert cover letter writer. Create a personalized, professional cover letter.
 
 Candidate Information:
@@ -281,25 +270,4 @@ Instructions:
 
 Return only the cover letter text:"""
 
-        try:
-            response = self.client.generate_content(prompt)
-            return response.text.strip()
-        except Exception as e:
-            error_msg = str(e)
-            print(f"Error generating cover letter: {error_msg}")
-            self._handle_rate_limit_error(error_msg)
-            raise Exception(f"Failed to generate cover letter: {error_msg}")
-
-# Keep old service instance for backward compatibility
-gemini_service = None
-
-def get_gemini_service():
-    """Get singleton Gemini service instance"""
-    global gemini_service
-    if gemini_service is None:
-        from app.core.config import settings
-        gemini_service = GeminiService(
-            api_key=settings.GEMINI_API_KEY,
-            model="gemini-2.0-flash-exp"
-        )
-    return gemini_service
+        return await self._generate_completion(prompt)

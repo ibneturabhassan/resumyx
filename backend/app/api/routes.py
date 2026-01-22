@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Depends
 from app.models.resume import (
     ResumeProfile,
     ResumeData,
@@ -8,10 +8,30 @@ from app.models.resume import (
     ATSScoreResponse
 )
 from app.services.supabase_service import supabase_service
-from app.services.gemini_service import gemini_service
+from app.services.ai_settings_service import ai_settings_service
+from app.services.ai_service_factory import AIServiceFactory
+from app.services.base_ai_service import BaseAIService
 from typing import Optional
 
 router = APIRouter()
+
+async def get_ai_service_for_user(user_id: Optional[str] = None) -> BaseAIService:
+    """Get AI service instance based on user preferences (required)"""
+    if not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User authentication required for AI operations"
+        )
+
+    # Get user's AI settings
+    user_config = await ai_settings_service.get_user_settings(user_id)
+    if not user_config:
+        raise HTTPException(
+            status_code=status.HTTP_428_PRECONDITION_REQUIRED,
+            detail="AI provider not configured. Please configure your AI settings in the AI Settings page before using AI features."
+        )
+
+    return AIServiceFactory.create_service(user_config)
 
 # Health check
 @router.get("/health")
@@ -61,43 +81,50 @@ async def delete_profile(user_id: str):
 async def generate_summary(data: dict):
     """Generate professional summary from experience"""
     experience = data.get("experience", "")
+    user_id = data.get("userId")  # Optional: use user's preferred AI
+
     if not experience:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Experience data is required"
         )
 
-    summary = await gemini_service.generate_summary(experience)
+    ai_service = await get_ai_service_for_user(user_id)
+    summary = await ai_service.generate_summary(experience)
     return {"summary": summary}
 
 @router.post("/ai/tailor-resume")
 async def tailor_resume(request: TailorRequest):
     """Tailor resume for specific job"""
     try:
-        # Tailor each section
-        tailored_summary = await gemini_service.tailor_summary(
+        # Get AI service (user-specific or default)
+        user_id = getattr(request.profileData, 'userId', None) if hasattr(request.profileData, 'userId') else None
+        ai_service = await get_ai_service_for_user(user_id)
+
+        # Tailor each section using the selected AI provider
+        tailored_summary = await ai_service.tailor_summary(
             request.profileData.additionalInfo,
             request.profileData.skills,
             request.profileData.experience,
             request.jobDescription
         )
 
-        tailored_experience = await gemini_service.tailor_experience(
+        tailored_experience = await ai_service.tailor_experience(
             request.profileData.experience,
             request.jobDescription
         )
 
-        tailored_skills = await gemini_service.tailor_skills(
+        tailored_skills = await ai_service.tailor_skills(
             request.profileData.skills,
             request.jobDescription
         )
 
-        tailored_projects = await gemini_service.tailor_projects(
+        tailored_projects = await ai_service.tailor_projects(
             request.profileData.projects,
             request.jobDescription
         )
 
-        tailored_education = await gemini_service.tailor_education(
+        tailored_education = await ai_service.tailor_education(
             request.profileData.education,
             request.jobDescription
         )
@@ -117,38 +144,50 @@ async def tailor_resume(request: TailorRequest):
         return {"tailoredResume": tailored_data.model_dump()}
 
     except Exception as e:
+        error_msg = str(e)
+        print(f"Error tailoring resume: {error_msg}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error tailoring resume: {str(e)}"
+            detail=error_msg
         )
 
 @router.post("/ai/ats-score", response_model=ATSScoreResponse)
 async def calculate_ats_score(request: TailorRequest):
     """Calculate ATS compatibility score"""
     try:
-        result = await gemini_service.calculate_ats_score(
+        user_id = getattr(request.profileData, 'userId', None) if hasattr(request.profileData, 'userId') else None
+        ai_service = await get_ai_service_for_user(user_id)
+
+        result = await ai_service.calculate_ats_score(
             request.profileData,
             request.jobDescription
         )
         return ATSScoreResponse(**result)
     except Exception as e:
+        error_msg = str(e)
+        print(f"Error calculating ATS score: {error_msg}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error calculating ATS score: {str(e)}"
+            detail=error_msg
         )
 
 @router.post("/ai/generate-cover-letter")
 async def generate_cover_letter(request: CoverLetterRequest):
     """Generate personalized cover letter"""
     try:
-        cover_letter = await gemini_service.generate_cover_letter(
+        user_id = getattr(request.profileData, 'userId', None) if hasattr(request.profileData, 'userId') else None
+        ai_service = await get_ai_service_for_user(user_id)
+
+        cover_letter = await ai_service.generate_cover_letter(
             request.profileData,
             request.jobDescription,
             request.instructions or ""
         )
         return {"coverLetter": cover_letter}
     except Exception as e:
+        error_msg = str(e)
+        print(f"Error generating cover letter: {error_msg}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error generating cover letter: {str(e)}"
+            detail=error_msg
         )
