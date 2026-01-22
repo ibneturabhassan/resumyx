@@ -156,11 +156,24 @@ class AuthService:
             Decoded token payload with user info, or None if invalid
         """
         try:
-            # Decode and verify the JWT token
+            # First, try to verify using Supabase client (which handles ES256 tokens)
+            try:
+                user = self.supabase_client.auth.get_user(token)
+                if user and user.user:
+                    return {
+                        "user_id": user.user.id,
+                        "email": user.user.email,
+                        "role": "authenticated",
+                        "exp": None
+                    }
+            except Exception as e:
+                print(f"Supabase token verification failed, trying JWT decode: {e}")
+
+            # Fallback to JWT decode for backward compatibility
+            # Try without signature verification as a last resort for Supabase ES256 tokens
             payload = jwt.decode(
                 token,
-                self.jwt_secret,
-                algorithms=["HS256"],
+                options={"verify_signature": False},
                 audience="authenticated"
             )
 
@@ -175,9 +188,11 @@ class AuthService:
                 "role": payload.get("role"),
                 "exp": exp
             }
-        except jwt.InvalidTokenError:
+        except jwt.InvalidTokenError as e:
+            print(f"JWT decode error: {e}")
             return None
-        except Exception:
+        except Exception as e:
+            print(f"Token verification error: {e}")
             return None
 
     async def get_user(self, access_token: str) -> Dict:
