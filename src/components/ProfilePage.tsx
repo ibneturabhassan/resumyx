@@ -41,6 +41,37 @@ const ProfilePage: React.FC<Props> = ({ data, onChange }) => {
 
   // Ensure skills object exists to avoid crash
   const skillsData = data.skills || { languages: [], databases: [], cloud: [], tools: [] };
+  const normalizedSkillList = (value: string) => {
+    const tokens = value
+      .split(/[,\\n]/g)
+      .map((item) => item.trim())
+      .filter(Boolean);
+
+    const unique = new Map<string, string>();
+    tokens.forEach((item) => {
+      const key = item.toLowerCase();
+      if (!unique.has(key)) {
+        unique.set(key, item);
+      }
+    });
+
+    return Array.from(unique.values());
+  };
+
+  const deriveSkillsText = () => {
+    if (data.skillsRaw?.trim()) {
+      return data.skillsRaw;
+    }
+
+    const combined = [
+      ...skillsData.languages,
+      ...skillsData.databases,
+      ...skillsData.cloud,
+      ...skillsData.tools
+    ];
+
+    return Array.from(new Set(combined)).join(', ');
+  };
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -118,21 +149,29 @@ const ProfilePage: React.FC<Props> = ({ data, onChange }) => {
           </div>
           <h2 className="text-xl font-bold text-slate-800">Technical Skills</h2>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {Object.keys(skillsData).map((key) => (
-            <div key={key}>
-              <label className={labelClass}>{key.charAt(0).toUpperCase() + key.slice(1)}</label>
-              <input 
-                className={inputClass}
-                value={(skillsData[key as keyof typeof skillsData] || []).join(', ')}
-                onChange={e => onChange({
-                  ...data,
-                  skills: { ...skillsData, [key]: e.target.value.split(',').map(s => s.trim()).filter(s => s !== '') }
-                })}
-                placeholder="Comma separated list..."
-              />
-            </div>
-          ))}
+        <div className="space-y-3">
+          <label className={labelClass}>Skills (comma separated)</label>
+          <input
+            className={inputClass}
+            value={deriveSkillsText()}
+            onChange={(e) => {
+              const normalized = normalizedSkillList(e.target.value);
+              onChange({
+                ...data,
+                skillsRaw: e.target.value,
+                skills: {
+                  languages: [],
+                  databases: [],
+                  cloud: [],
+                  tools: normalized
+                }
+              });
+            }}
+            placeholder="e.g. Python, SQL, Spark, AWS, Kubernetes"
+          />
+          <p className="text-xs text-slate-500">
+            We’ll send this full list to the AI so it can categorize and format skills automatically.
+          </p>
         </div>
       </section>
 

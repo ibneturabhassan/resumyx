@@ -11,6 +11,7 @@ class SupabaseService:
             settings.SUPABASE_SERVICE_KEY
         )
         self.table_name = "resume_profiles"
+        self.ai_settings_table = "ai_settings"
 
     async def get_profile(self, user_id: str) -> Optional[dict]:
         """Get user profile from database"""
@@ -61,6 +62,54 @@ class SupabaseService:
             return True
         except Exception as e:
             print(f"Error deleting profile: {e}")
+            return False
+
+    async def get_ai_settings(self, user_id: str) -> Optional[dict]:
+        """Get AI settings for a user"""
+        try:
+            response = self.client.table(self.ai_settings_table)\
+                .select("*")\
+                .eq("user_id", user_id)\
+                .execute()
+
+            if response.data and len(response.data) > 0:
+                return response.data[0]
+            return None
+        except Exception as e:
+            print(f"Error fetching AI settings: {e}")
+            return None
+
+    async def save_ai_settings(self, user_id: str, config: dict) -> bool:
+        """Save or update AI settings"""
+        try:
+            data = {
+                "user_id": user_id,
+                "provider": config.get("provider"),
+                "api_key": config.get("api_key"),
+                "model": config.get("model"),
+                "site_url": config.get("site_url"),
+                "app_name": config.get("app_name"),
+                "updated_at": datetime.utcnow().isoformat()
+            }
+
+            self.client.table(self.ai_settings_table)\
+                .upsert(data)\
+                .execute()
+            return True
+        except Exception as e:
+            print(f"Error saving AI settings: {e}")
+            return False
+
+    async def delete_ai_settings(self, user_id: str) -> bool:
+        """Delete AI settings for a user"""
+        try:
+            self.client.table(self.ai_settings_table)\
+                .delete()\
+                .eq("user_id", user_id)\
+                .execute()
+            return True
+        except Exception as e:
+            print(f"Error deleting AI settings: {e}")
             return False
 
 supabase_service = SupabaseService()

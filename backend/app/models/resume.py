@@ -41,6 +41,7 @@ class ResumeData(BaseModel):
     personalInfo: PersonalInfo
     additionalInfo: str = ""
     coverLetter: str = ""
+    skillsRaw: Optional[str] = None
     skills: Skills
     experience: List[Experience] = []
     education: List[Education] = []
