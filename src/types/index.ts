@@ -35,6 +35,7 @@ export interface ResumeData {
   };
   additionalInfo: string;
   coverLetter: string;
+  skillsRaw?: string;
   skills: {
     languages: string[];
     databases: string[];
@@ -74,7 +75,6 @@ export enum ViewMode {
   PROFILE = 'profile',
   AI_BUILD = 'ai_build',
   COVER_LETTER = 'cover_letter',
-  AI_SETTINGS = 'ai_settings',
   DIAGNOSTICS = 'diagnostics'
 }
 
