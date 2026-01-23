@@ -232,6 +232,12 @@ const MainApp: React.FC = () => {
         useCORS: true,
         logging: false,
         backgroundColor: '#ffffff',
+        letterRendering: true,
+        allowTaint: false,
+        removeContainer: true,
+        imageTimeout: 0,
+        windowWidth: mainPreview.scrollWidth,
+        windowHeight: mainPreview.scrollHeight,
       });
 
       // Restore original styles

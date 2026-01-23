@@ -41,6 +41,13 @@ const ResumePreview: React.FC<Props> = ({ data, highlightedSection }) => {
           color: #111;
           line-height: 1.4;
           box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+          word-spacing: normal;
+          white-space: normal;
+        }
+
+        .resume-continuous * {
+          word-spacing: normal;
+          white-space: normal;
         }
 
         /* Visual indicator for page breaks in preview */
