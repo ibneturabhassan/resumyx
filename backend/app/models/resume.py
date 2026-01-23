@@ -78,6 +78,29 @@ class TailoredResumeData(BaseModel):
     projects: List[Project] = []
     certifications: List[str] = []
 
+class ATSScoreBreakdown(BaseModel):
+    keyword_match: int  # 0-100
+    formatting: int  # 0-100
+    experience_relevance: int  # 0-100
+    skills_alignment: int  # 0-100
+
 class ATSScoreResponse(BaseModel):
-    score: int
+    score: int  # Overall weighted score
     feedback: str
+    breakdown: Optional[ATSScoreBreakdown] = None
+    missing_keywords: List[str] = []
+    strengths: List[str] = []
+    improvements: List[str] = []
+
+class ChangeDetail(BaseModel):
+    section: str
+    field: str
+    before: str
+    after: str
+    reason: str
+
+class TailoredResumeResponse(BaseModel):
+    tailored: TailoredResumeData
+    changes: List[ChangeDetail] = []
+    keyword_analysis: dict = {}
+    ats_improvement: dict = {}
