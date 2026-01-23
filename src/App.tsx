@@ -228,16 +228,12 @@ const MainApp: React.FC = () => {
 
       // Capture the resume content at high resolution
       const canvas = await html2canvas(mainPreview, {
-        scale: 2,
+        scale: 3,  // Increased scale for better text quality
         useCORS: true,
         logging: false,
         backgroundColor: '#ffffff',
-        letterRendering: true,
-        allowTaint: false,
-        removeContainer: true,
-        imageTimeout: 0,
-        windowWidth: mainPreview.scrollWidth,
-        windowHeight: mainPreview.scrollHeight,
+        letterRendering: 1,  // Force letter-by-letter rendering (1 = enabled)
+        allowTaint: true,
       });
 
       // Restore original styles
