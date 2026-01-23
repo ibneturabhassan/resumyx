@@ -126,12 +126,15 @@ Target Job Description:
 {job_description}
 
 Instructions:
-1. Rewrite bullet points to emphasize relevant skills and achievements
-2. Use action verbs and quantify results where possible
-3. Incorporate keywords from the job description naturally
-4. Maintain truthfulness - don't add false information
-5. Keep the same structure (company, role, dates, location)
-6. Return valid JSON array matching the exact input structure
+1. SELECT and prioritize the 4-6 most relevant bullet points per role that match the job requirements
+2. Rewrite bullets to emphasize achievements that align with the job description
+3. Use strong action verbs and quantify results wherever possible (percentages, numbers, scale)
+4. Incorporate exact keywords and phrases from the job description naturally
+5. Remove or deprioritize bullets that are not relevant to this specific job
+6. Focus on accomplishments that demonstrate skills mentioned in the job posting
+7. Maintain truthfulness - do NOT add false information or fabricate achievements
+8. Keep the same structure (company, role, dates, location) - only modify description bullets
+9. Return valid JSON array matching the exact input structure
 
 Return only the JSON array, no markdown or additional text:"""
 
@@ -170,9 +173,12 @@ Target Job Description:
 {job_description}
 
 Instructions:
-1. Reorder skills to prioritize those most relevant to the job
-2. Keep all existing skills (don't remove any)
-3. Return valid JSON object matching the exact input structure
+1. SELECT only the most relevant skills (5-8 per category) from the original list that match the job requirements
+2. Remove skills that are NOT mentioned or relevant to the job description
+3. Prioritize skills that appear in the job description
+4. If a category has no relevant skills, you may return an empty array for that category
+5. Do NOT add new skills - only select from the existing list
+6. Return valid JSON object matching the exact input structure
 
 Return only the JSON object, no markdown or additional text:"""
 
