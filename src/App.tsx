@@ -10,6 +10,7 @@ import CoverLetterPage from './components/CoverLetterPage';
 import ResumePreview from './components/ResumePreview';
 import CoverLetterPreview from './components/CoverLetterPreview';
 import AuthPage from './components/AuthPage';
+import LandingPage from './components/LandingPage';
 import { ResumeData, ViewMode } from './types/index';
 import { apiService } from './services/apiService';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -85,6 +86,8 @@ const safeLoad = (key: string, defaultVal: any): any => {
 
 const MainApp: React.FC = () => {
   const { isAuthenticated, loading: authLoading, user, logout } = useAuth();
+  const [showAuthPage, setShowAuthPage] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [profileData, setProfileData] = useState<ResumeData>(() => safeLoad(PROFILE_KEY, initialData));
   const [targetJd, setTargetJd] = useState<string>(() => localStorage.getItem(JD_KEY) || '');
   const [targetInstructions, setTargetInstructions] = useState<string>('');
@@ -97,6 +100,11 @@ const MainApp: React.FC = () => {
   const [isSyncing, setIsSyncing] = useState(false);
   const previewContainerRef = useRef<HTMLDivElement>(null);
   const userId = getUserId();
+
+  const handleNavigateToAuth = (mode: 'login' | 'register') => {
+    setAuthMode(mode);
+    setShowAuthPage(true);
+  };
 
   // Load data from backend on mount
   useEffect(() => {
@@ -254,9 +262,23 @@ const MainApp: React.FC = () => {
     );
   }
 
-  // Show auth page if not authenticated
+  // Show landing page or auth page if not authenticated
   if (!isAuthenticated) {
-    return <AuthPage />;
+    if (showAuthPage) {
+      return (
+        <div>
+          <button
+            onClick={() => setShowAuthPage(false)}
+            className="absolute top-6 left-6 z-50 px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 flex items-center gap-2 bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
+          >
+            <i className="fas fa-arrow-left"></i>
+            <span>Back to Home</span>
+          </button>
+          <AuthPage />
+        </div>
+      );
+    }
+    return <LandingPage onNavigateToAuth={handleNavigateToAuth} />;
   }
 
   // Show loading for profile data
