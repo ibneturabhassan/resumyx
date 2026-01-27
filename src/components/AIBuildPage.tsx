@@ -42,26 +42,12 @@ const AIBuildPage: React.FC<Props> = ({ profileData, jd, setJd, onResult, onAgen
 
     try {
       setCurrentStep(1);
-      onAgentChange?.('Summary');
-      addLog("📝 Tailoring professional summary...");
-
-      setCurrentStep(2);
-      onAgentChange?.('Experience');
-      addLog("💼 Optimizing work experience...");
-
-      setCurrentStep(3);
-      onAgentChange?.('Skills');
-      addLog("🛠️ Prioritizing relevant skills...");
-
-      setCurrentStep(4);
-      onAgentChange?.('Projects');
-      addLog("🚀 Enhancing project descriptions...");
-
-      setCurrentStep(5);
-      onAgentChange?.('Education');
-      addLog("🎓 Reviewing education section...");
+      onAgentChange?.('Processing');
+      addLog("🤖 AI agents analyzing your profile and job description...");
+      addLog("⚡ Running parallel optimization on all resume sections...");
 
       // Call backend API to tailor the entire resume at once
+      // Backend processes all sections in parallel: Summary, Experience, Skills, Projects, Education
       console.log('Sending tailor request with profile:', profileData);
       tailoredResume = await apiService.tailorResume(profileData, jd);
       console.log('Received tailored resume:', tailoredResume);
@@ -72,9 +58,9 @@ const AIBuildPage: React.FC<Props> = ({ profileData, jd, setJd, onResult, onAgen
 
       setTailoredData({ ...tailoredResume });
       onResult({ ...tailoredResume });
-      addLog("✅ Resume tailoring complete!");
+      addLog("✅ Resume optimization complete!");
 
-      setCurrentStep(6);
+      setCurrentStep(2);
       onAgentChange?.('Scoring');
       addLog("🎯 Calculating ATS compatibility score...");
       const scoreResult = await apiService.calculateATSScore(tailoredResume, jd);
@@ -103,12 +89,8 @@ const AIBuildPage: React.FC<Props> = ({ profileData, jd, setJd, onResult, onAgen
   };
 
   const steps = [
-    { label: 'Summary', icon: 'fa-align-left' },
-    { label: 'Experience', icon: 'fa-briefcase' },
-    { label: 'Skills', icon: 'fa-code' },
-    { label: 'Projects', icon: 'fa-diagram-project' },
-    { label: 'Education', icon: 'fa-graduation-cap' },
-    { label: 'Scoring', icon: 'fa-bullseye' }
+    { label: 'AI Processing', icon: 'fa-robot' },
+    { label: 'ATS Scoring', icon: 'fa-bullseye' }
   ];
 
   return (
