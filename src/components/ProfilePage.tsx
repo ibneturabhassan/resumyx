@@ -151,8 +151,8 @@ const ProfilePage: React.FC<Props> = ({ data, onChange }) => {
         </div>
         <div className="space-y-3">
           <label className={labelClass}>Skills (comma separated)</label>
-          <input
-            className={inputClass}
+          <textarea
+            className={`${inputClass} h-32 resize-none leading-relaxed`}
             value={deriveSkillsText()}
             onChange={(e) => {
               const normalized = normalizedSkillList(e.target.value);
@@ -167,10 +167,10 @@ const ProfilePage: React.FC<Props> = ({ data, onChange }) => {
                 }
               });
             }}
-            placeholder="e.g. Python, SQL, Spark, AWS, Kubernetes"
+            placeholder="e.g. Python, SQL, Spark, AWS, Kubernetes, TensorFlow, Docker, React, Node.js, PostgreSQL, MongoDB, Git, CI/CD"
           />
           <p className="text-xs text-slate-500">
-            We’ll send this full list to the AI so it can categorize and format skills automatically.
+            Enter skills separated by commas or new lines. The AI will categorize and format them automatically.
           </p>
         </div>
       </section>
