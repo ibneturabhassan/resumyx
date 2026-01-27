@@ -76,9 +76,9 @@ const ResumeForm: React.FC<Props> = ({ data, onChange }) => {
         <p className="text-sm text-slate-500 mb-8 font-medium">List your tools and technologies for ATS parsing.</p>
         <div className="space-y-3">
           <label className={labelClass}>Skills (comma separated)</label>
-          <input
-            className={inputClass}
-            placeholder="e.g. Python, SQL, Spark, AWS, Kubernetes"
+          <textarea
+            className={`${inputClass} h-32 resize-none leading-relaxed`}
+            placeholder="e.g. Python, SQL, Spark, AWS, Kubernetes, TensorFlow, Docker, React, Node.js, PostgreSQL, MongoDB, Git, CI/CD"
             value={deriveSkillsText()}
             onChange={(e) => {
               const normalized = normalizedSkillList(e.target.value);
@@ -95,7 +95,7 @@ const ResumeForm: React.FC<Props> = ({ data, onChange }) => {
             }}
           />
           <p className="text-xs text-slate-500">
-            We’ll send this full list to the AI so it can categorize and format skills automatically.
+            Enter skills separated by commas or new lines. The AI will categorize and format them automatically.
           </p>
         </div>
       </section>

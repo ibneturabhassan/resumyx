@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ResumeData } from '../types/index';
 import { apiService } from '../services/apiService';
+import TailoredResumeEditor from './TailoredResumeEditor';
 
 interface Props {
   profileData: ResumeData;
@@ -18,6 +19,8 @@ const AIBuildPage: React.FC<Props> = ({ profileData, jd, setJd, onResult, onAgen
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [logs, setLogs] = useState<string[]>([]);
   const [done, setDone] = useState(false);
+  const [showEditor, setShowEditor] = useState(false);
+  const [tailoredData, setTailoredData] = useState<ResumeData | null>(null);
   const logEndRef = useRef<HTMLDivElement>(null);
 
   const addLog = (msg: string) => {
@@ -67,6 +70,7 @@ const AIBuildPage: React.FC<Props> = ({ profileData, jd, setJd, onResult, onAgen
         throw new Error('Invalid response from tailor API');
       }
 
+      setTailoredData({ ...tailoredResume });
       onResult({ ...tailoredResume });
       addLog("✅ Resume tailoring complete!");
 
@@ -151,14 +155,26 @@ const AIBuildPage: React.FC<Props> = ({ profileData, jd, setJd, onResult, onAgen
               )}
             </button>
 
-            {done && onProceed && (
-              <button
-                onClick={onProceed}
-                className="w-full py-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 text-blue-600 rounded-xl font-semibold text-sm hover:from-blue-100 hover:to-indigo-100 transition-all duration-200 flex items-center justify-center gap-2 group hover:shadow-md"
-              >
-                <span>Next: Create Cover Letter</span>
-                <i className="fas fa-arrow-right group-hover:translate-x-1 transition-transform duration-200"></i>
-              </button>
+            {done && (
+              <div className="space-y-3">
+                <button
+                  onClick={() => setShowEditor(true)}
+                  className="w-full py-4 bg-gradient-to-r from-emerald-50 to-teal-50 border-2 border-emerald-200 text-emerald-700 rounded-xl font-semibold text-sm hover:from-emerald-100 hover:to-teal-100 transition-all duration-200 flex items-center justify-center gap-2 group hover:shadow-md"
+                >
+                  <i className="fas fa-edit"></i>
+                  <span>Edit Tailored Resume</span>
+                </button>
+
+                {onProceed && (
+                  <button
+                    onClick={onProceed}
+                    className="w-full py-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 text-blue-600 rounded-xl font-semibold text-sm hover:from-blue-100 hover:to-indigo-100 transition-all duration-200 flex items-center justify-center gap-2 group hover:shadow-md"
+                  >
+                    <span>Next: Create Cover Letter</span>
+                    <i className="fas fa-arrow-right group-hover:translate-x-1 transition-transform duration-200"></i>
+                  </button>
+                )}
+              </div>
             )}
           </div>
 
@@ -196,6 +212,19 @@ const AIBuildPage: React.FC<Props> = ({ profileData, jd, setJd, onResult, onAgen
             <div ref={logEndRef} />
           </div>
         </div>
+      )}
+
+      {/* Tailored Resume Editor Modal */}
+      {showEditor && tailoredData && (
+        <TailoredResumeEditor
+          data={tailoredData}
+          originalData={profileData}
+          onChange={(updatedData) => {
+            setTailoredData(updatedData);
+            onResult(updatedData);
+          }}
+          onClose={() => setShowEditor(false)}
+        />
       )}
     </div>
   );
