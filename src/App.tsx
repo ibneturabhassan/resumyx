@@ -5,7 +5,7 @@ import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 import ProfilePage from './components/ProfilePage';
 import AIBuildPage from './components/AIBuildPage';
-import DiagnosticsPage from './components/DiagnosticsPage';
+import SettingsPage from './components/SettingsPage';
 import CoverLetterPage from './components/CoverLetterPage';
 import ResumePreview from './components/ResumePreview';
 import CoverLetterPreview from './components/CoverLetterPreview';
@@ -245,7 +245,7 @@ const MainApp: React.FC = () => {
     [ViewMode.PROFILE]: 'Profile',
     [ViewMode.AI_BUILD]: 'Tailor',
     [ViewMode.COVER_LETTER]: 'Letter',
-    [ViewMode.DIAGNOSTICS]: 'System'
+    [ViewMode.DIAGNOSTICS]: 'Settings'
   };
 
   // Show loading while checking authentication
@@ -356,13 +356,13 @@ const MainApp: React.FC = () => {
                     {view === ViewMode.PROFILE ? 'Your Profile' :
                      view === ViewMode.AI_BUILD ? 'AI Resume Tailor' :
                      view === ViewMode.COVER_LETTER ? 'Cover Letter' :
-                     'System Settings'}
+                     'Settings'}
                   </h1>
                   <p className="text-sm text-slate-500 mt-1">
                     {view === ViewMode.PROFILE ? 'Manage your personal information and experience' :
                      view === ViewMode.AI_BUILD ? 'Optimize your resume for any job description' :
                      view === ViewMode.COVER_LETTER ? 'Generate a personalized cover letter' :
-                     'Manage AI providers and check API connection status'}
+                     'AI configuration, account security, and system diagnostics'}
                   </p>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-slate-500">
@@ -383,18 +383,18 @@ const MainApp: React.FC = () => {
 
             {view === ViewMode.PROFILE && <ProfilePage data={profileData} onChange={(data) => { setProfileData(data); setPreviewData(data); }} />}
             {view === ViewMode.AI_BUILD && (
-              <AIBuildPage 
+              <AIBuildPage
                 profileData={profileData}
                 jd={targetJd}
                 setJd={setTargetJd}
-                onResult={(res) => { setProfileData(res); setPreviewData(res); }} 
+                onResult={(res) => { setProfileData(res); setPreviewData(res); }}
                 onAgentChange={setActiveAgent}
                 onScoreUpdate={setMatchScore}
                 onProceed={() => setView(ViewMode.COVER_LETTER)}
               />
             )}
             {view === ViewMode.COVER_LETTER && (
-              <CoverLetterPage 
+              <CoverLetterPage
                 profileData={profileData}
                 jd={targetJd}
                 setJd={setTargetJd}
@@ -404,7 +404,7 @@ const MainApp: React.FC = () => {
                 onAgentChange={setActiveAgent}
               />
             )}
-            {view === ViewMode.DIAGNOSTICS && <DiagnosticsPage />}
+            {view === ViewMode.DIAGNOSTICS && <SettingsPage />}
           </div>
         </div>
 

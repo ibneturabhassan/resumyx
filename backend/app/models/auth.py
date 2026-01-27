@@ -32,6 +32,18 @@ class LoginRequest(BaseModel):
 class RefreshTokenRequest(BaseModel):
     refresh_token: str
 
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "current_password": "oldpassword123",
+                "new_password": "newsecurepassword456"
+            }
+        }
+
 class SessionResponse(BaseModel):
     access_token: str
     refresh_token: str

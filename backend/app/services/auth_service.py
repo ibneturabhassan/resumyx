@@ -227,6 +227,54 @@ class AuthService:
         except Exception as e:
             raise Exception(f"Failed to get user: {str(e)}")
 
+    async def change_password(self, access_token: str, current_password: str, new_password: str) -> Dict:
+        """
+        Change user's password.
+
+        Args:
+            access_token: User's access token
+            current_password: Current password for verification
+            new_password: New password to set
+
+        Returns:
+            Success message
+        """
+        try:
+            # Verify token first
+            user_data = self.verify_token(access_token)
+            if not user_data:
+                raise ValueError("Invalid or expired token")
+
+            # Verify current password by attempting login
+            try:
+                await self.login(user_data["email"], current_password)
+            except Exception:
+                raise ValueError("Current password is incorrect")
+
+            # Update password using Supabase admin API
+            # Set the auth context with the access token
+            self.auth_client.auth.set_session(access_token, access_token)
+
+            # Update the user's password
+            response = self.auth_client.auth.update_user({
+                "password": new_password
+            })
+
+            if response.user:
+                return {"message": "Password changed successfully"}
+            else:
+                raise Exception("Password update failed")
+
+        except ValueError as e:
+            # Re-raise validation errors
+            raise ValueError(str(e))
+        except Exception as e:
+            error_msg = str(e)
+            if "Password should be at least" in error_msg:
+                raise ValueError("New password must be at least 6 characters")
+            else:
+                raise Exception(f"Failed to change password: {error_msg}")
+
 # Create singleton instance (will be initialized with supabase client in routes)
 auth_service: Optional[AuthService] = None
 

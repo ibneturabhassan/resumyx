@@ -8,6 +8,7 @@ from app.models.auth import (
     RegisterRequest,
     LoginRequest,
     RefreshTokenRequest,
+    ChangePasswordRequest,
     AuthResponse,
     MessageResponse,
     UserResponse,
@@ -164,3 +165,36 @@ async def verify_token(
         "user_id": user["user_id"],
         "email": user["email"]
     }
+
+@router.post("/change-password", response_model=MessageResponse)
+async def change_password(
+    request: ChangePasswordRequest,
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    auth_service: AuthService = Depends(get_auth_service)
+):
+    """
+    Change the current user's password.
+
+    - **current_password**: Current password for verification
+    - **new_password**: New password to set (minimum 6 characters)
+
+    Requires Authorization header with Bearer token.
+    Returns success message if password is changed successfully.
+    """
+    try:
+        result = await auth_service.change_password(
+            credentials.credentials,
+            request.current_password,
+            request.new_password
+        )
+        return MessageResponse(message=result["message"])
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
+        )
