@@ -422,3 +422,26 @@ async def generate_cover_letter(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=error_msg
         )
+
+@router.post("/ai/generate-proposal")
+async def generate_proposal(
+    request: TailorRequest,
+    current_user: Dict[str, Any] = Depends(get_current_user)
+):
+    """Generate freelance job proposal with suggested experience and projects"""
+    try:
+        user_id = current_user["user_id"]
+        ai_service = await get_ai_service_for_user(user_id)
+
+        result = await ai_service.generate_proposal(
+            request.profileData,
+            request.jobDescription
+        )
+        return result
+    except Exception as e:
+        error_msg = str(e)
+        print(f"Error generating proposal: {error_msg}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=error_msg
+        )

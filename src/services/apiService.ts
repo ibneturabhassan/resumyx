@@ -220,6 +220,19 @@ class APIService {
     return response.coverLetter;
   }
 
+  async generateProposal(
+    profileData: ResumeData,
+    jobDescription: string
+  ) {
+    return this.request('/ai/generate-proposal', {
+      method: 'POST',
+      body: JSON.stringify({
+        profileData,
+        jobDescription,
+      }),
+    });
+  }
+
   async healthCheck() {
     return this.request('/health');
   }

@@ -319,3 +319,67 @@ Keep the letter professional, concise, and tailored to the specific job requirem
 Cover Letter:"""
 
         return await self._generate_completion(prompt)
+
+    async def generate_proposal(
+        self,
+        profile_data: ResumeData,
+        job_description: str
+    ) -> dict:
+        """Generate freelance job proposal with suggested experience and projects"""
+        prompt = f"""You are an expert freelance proposal writer. Create a winning proposal for this freelance job.
+
+Candidate Profile:
+{json.dumps(profile_data.model_dump(), indent=2)}
+
+Freelance Job Description:
+{job_description}
+
+Create a compelling proposal with the following structure:
+
+1. CREATIVE HOOK (1-2 sentences): Start with an attention-grabbing opening that shows understanding of the client's needs
+
+2. SOLUTION APPROACH (2-3 sentences): Briefly explain how you would solve their problem or complete the project
+
+3. RELEVANT EXPERIENCE (2-3 sentences): Highlight specific experience that directly relates to this job
+
+4. INTELLIGENT QUESTIONS (2 questions): Ask 2 thoughtful questions that show you've read the job description carefully and are trying to build a conversation
+
+5. CALL TO ACTION (1-2 sentences): End with a clear next step
+
+Keep the total proposal around 250-300 words. Be professional but friendly and conversational.
+Also, analyze the candidate's profile and identify:
+- Which specific experiences from their profile are MOST relevant to this job
+- Which specific projects from their profile are MOST relevant to this job
+
+Return your response as JSON with this structure:
+{{
+  "proposal": "the complete proposal text",
+  "suggestedExperience": ["experience 1 company and role", "experience 2 company and role"],
+  "suggestedProjects": ["project 1 name", "project 2 name"]
+}}
+
+Important: Return ONLY the JSON object, no additional text or markdown formatting."""
+
+        try:
+            result_text = await self._generate_completion(prompt)
+
+            # Clean up markdown formatting if present
+            if result_text.startswith('```'):
+                result_text = result_text.split('\n', 1)[1]
+                result_text = result_text.rsplit('\n', 1)[0]
+                result_text = result_text.strip()
+
+            result = json.loads(result_text)
+            return result
+        except json.JSONDecodeError as e:
+            print(f"Error parsing proposal JSON: {e}")
+            print(f"Response text: {result_text}")
+            return {
+                "proposal": result_text if 'result_text' in locals() else "Error generating proposal",
+                "suggestedExperience": [],
+                "suggestedProjects": []
+            }
+        except Exception as e:
+            error_msg = str(e)
+            print(f"Error generating proposal: {error_msg}")
+            raise Exception(f"Failed to generate proposal: {error_msg}")

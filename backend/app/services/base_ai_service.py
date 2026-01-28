@@ -80,6 +80,15 @@ class BaseAIService(ABC):
         """Generate personalized cover letter"""
         pass
 
+    @abstractmethod
+    async def generate_proposal(
+        self,
+        profile_data: ResumeData,
+        job_description: str
+    ) -> dict:
+        """Generate freelance job proposal with suggested experience and projects"""
+        pass
+
     def _clean_cover_letter(self, content: str, candidate_name: str = "") -> str:
         """
         AGGRESSIVELY clean cover letter to extract ONLY body paragraphs.

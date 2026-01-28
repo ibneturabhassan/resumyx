@@ -8,6 +8,7 @@ import AIBuildPage from './components/AIBuildPage';
 import SettingsPage from './components/SettingsPage';
 import CoverLetterPage from './components/CoverLetterPage';
 import WorkflowPage from './components/WorkflowPage';
+import ProposalPage from './components/ProposalPage';
 import ResumePreview from './components/ResumePreview';
 import CoverLetterPreview from './components/CoverLetterPreview';
 import AuthPage from './components/AuthPage';
@@ -223,6 +224,7 @@ const MainApp: React.FC = () => {
     [ViewMode.PROFILE]: 'Profile',
     [ViewMode.AI_BUILD]: 'Tailor',
     [ViewMode.COVER_LETTER]: 'Letter',
+    [ViewMode.PROPOSAL]: 'Proposal',
     [ViewMode.WORKFLOW]: 'Workflow',
     [ViewMode.DIAGNOSTICS]: 'Settings'
   };
@@ -278,7 +280,7 @@ const MainApp: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-100 flex overflow-hidden relative">
       {createPortal(
-        view === ViewMode.COVER_LETTER
+        view === ViewMode.COVER_LETTER || view === ViewMode.PROPOSAL
           ? <CoverLetterPreview data={previewData} />
           : <ResumePreview data={previewData} />,
         document.getElementById('print-portal-root')!
@@ -296,6 +298,7 @@ const MainApp: React.FC = () => {
             { mode: ViewMode.PROFILE, icon: 'fa-user' },
             { mode: ViewMode.AI_BUILD, icon: 'fa-wand-magic-sparkles' },
             { mode: ViewMode.COVER_LETTER, icon: 'fa-file-lines' },
+            { mode: ViewMode.PROPOSAL, icon: 'fa-handshake' },
             { mode: ViewMode.WORKFLOW, icon: 'fa-diagram-project' },
             { mode: ViewMode.DIAGNOSTICS, icon: 'fa-gear' }
           ].map(({ mode, icon }) => (
@@ -336,6 +339,7 @@ const MainApp: React.FC = () => {
                     {view === ViewMode.PROFILE ? 'Your Profile' :
                      view === ViewMode.AI_BUILD ? 'AI Resume Tailor' :
                      view === ViewMode.COVER_LETTER ? 'Cover Letter' :
+                     view === ViewMode.PROPOSAL ? 'Freelance Proposal Writer' :
                      view === ViewMode.WORKFLOW ? 'Workflow Designer' :
                      'Settings'}
                   </h1>
@@ -343,6 +347,7 @@ const MainApp: React.FC = () => {
                     {view === ViewMode.PROFILE ? 'Manage your personal information and experience' :
                      view === ViewMode.AI_BUILD ? 'Optimize your resume for any job description' :
                      view === ViewMode.COVER_LETTER ? 'Generate a personalized cover letter' :
+                     view === ViewMode.PROPOSAL ? 'Create winning proposals for freelance jobs' :
                      view === ViewMode.WORKFLOW ? 'Visualize and customize the AI optimization workflow' :
                      'AI configuration, account security, and system diagnostics'}
                   </p>
@@ -386,6 +391,15 @@ const MainApp: React.FC = () => {
                 onAgentChange={setActiveAgent}
               />
             )}
+            {view === ViewMode.PROPOSAL && (
+              <ProposalPage
+                profileData={profileData}
+                jd={targetJd}
+                setJd={setTargetJd}
+                onUpdate={(proposal) => { setProfileData({ ...profileData, coverLetter: proposal }); setPreviewData({ ...profileData, coverLetter: proposal }); }}
+                onAgentChange={setActiveAgent}
+              />
+            )}
             {view === ViewMode.WORKFLOW && <WorkflowPage />}
             {view === ViewMode.DIAGNOSTICS && <SettingsPage onResetProfile={handleReset} />}
           </div>
@@ -399,7 +413,9 @@ const MainApp: React.FC = () => {
             <div className="h-14 bg-white border-b border-slate-100 px-6 flex items-center justify-between shrink-0">
               <div className="flex items-center gap-3">
                 <span className="text-xs font-semibold text-slate-500">
-                  {view === ViewMode.COVER_LETTER ? 'Cover Letter Preview' : 'Resume Preview'}
+                  {view === ViewMode.COVER_LETTER ? 'Cover Letter Preview' :
+                   view === ViewMode.PROPOSAL ? 'Proposal Preview' :
+                   'Resume Preview'}
                 </span>
                 {view !== ViewMode.COVER_LETTER && matchScore !== null && (
                   <div className="bg-emerald-50 text-emerald-600 px-2.5 py-1 rounded-md border border-emerald-100 flex items-center gap-1.5">
@@ -434,7 +450,7 @@ const MainApp: React.FC = () => {
                 className="transition-transform duration-300"
               >
                 <div className="shadow-2xl rounded-lg overflow-hidden">
-                   {view === ViewMode.COVER_LETTER
+                   {view === ViewMode.COVER_LETTER || view === ViewMode.PROPOSAL
                      ? <CoverLetterPreview data={previewData} />
                      : <ResumePreview data={previewData} highlightedSection={activeAgent} />
                    }
