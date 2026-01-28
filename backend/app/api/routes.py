@@ -102,6 +102,113 @@ async def generate_summary(
     summary = await ai_service.generate_summary(experience)
     return {"summary": summary}
 
+@router.post("/ai/tailor-summary")
+async def tailor_summary_endpoint(
+    request: TailorRequest,
+    current_user: Dict[str, Any] = Depends(get_current_user)
+):
+    """Tailor professional summary for specific job"""
+    try:
+        user_id = current_user["user_id"]
+        ai_service = await get_ai_service_for_user(user_id)
+
+        summary = await ai_service.tailor_summary(
+            request.profileData.additionalInfo,
+            request.profileData.skills,
+            request.profileData.experience,
+            request.jobDescription
+        )
+        return {"summary": summary}
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
+        )
+
+@router.post("/ai/tailor-experience")
+async def tailor_experience_endpoint(
+    request: TailorRequest,
+    current_user: Dict[str, Any] = Depends(get_current_user)
+):
+    """Tailor work experience for specific job"""
+    try:
+        user_id = current_user["user_id"]
+        ai_service = await get_ai_service_for_user(user_id)
+
+        experience = await ai_service.tailor_experience(
+            request.profileData.experience,
+            request.jobDescription
+        )
+        return {"experience": [exp.model_dump() for exp in experience]}
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
+        )
+
+@router.post("/ai/tailor-skills")
+async def tailor_skills_endpoint(
+    request: TailorRequest,
+    current_user: Dict[str, Any] = Depends(get_current_user)
+):
+    """Tailor skills for specific job"""
+    try:
+        user_id = current_user["user_id"]
+        ai_service = await get_ai_service_for_user(user_id)
+
+        skills = await ai_service.tailor_skills(
+            request.profileData.skills,
+            request.jobDescription
+        )
+        return {"skills": skills}
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
+        )
+
+@router.post("/ai/tailor-projects")
+async def tailor_projects_endpoint(
+    request: TailorRequest,
+    current_user: Dict[str, Any] = Depends(get_current_user)
+):
+    """Tailor projects for specific job"""
+    try:
+        user_id = current_user["user_id"]
+        ai_service = await get_ai_service_for_user(user_id)
+
+        projects = await ai_service.tailor_projects(
+            request.profileData.projects,
+            request.jobDescription
+        )
+        return {"projects": [proj.model_dump() for proj in projects]}
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
+        )
+
+@router.post("/ai/tailor-education")
+async def tailor_education_endpoint(
+    request: TailorRequest,
+    current_user: Dict[str, Any] = Depends(get_current_user)
+):
+    """Tailor education for specific job"""
+    try:
+        user_id = current_user["user_id"]
+        ai_service = await get_ai_service_for_user(user_id)
+
+        education = await ai_service.tailor_education(
+            request.profileData.education,
+            request.jobDescription
+        )
+        return {"education": [edu.model_dump() for edu in education]}
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
+        )
+
 @router.post("/ai/tailor-resume")
 async def tailor_resume(
     request: TailorRequest,

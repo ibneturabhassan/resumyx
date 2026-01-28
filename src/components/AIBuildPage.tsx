@@ -17,6 +17,7 @@ interface Props {
 const AIBuildPage: React.FC<Props> = ({ profileData, jd, setJd, onResult, onAgentChange, onScoreUpdate, onProceed }) => {
   const [loading, setLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState<number>(0);
+  const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
   const [logs, setLogs] = useState<string[]>([]);
   const [done, setDone] = useState(false);
   const [showEditor, setShowEditor] = useState(false);
@@ -41,44 +42,79 @@ const AIBuildPage: React.FC<Props> = ({ profileData, jd, setJd, onResult, onAgen
     let tailoredResume: ResumeData = { ...profileData };
 
     try {
-      // Step 1: Summary
-      setCurrentStep(1);
-      onAgentChange?.('Summary');
-      addLog("📝 Tailoring professional summary...");
+      addLog("🚀 Starting parallel optimization of all resume sections...");
+      setCompletedSteps(new Set());
 
-      // Step 2: Experience
-      setCurrentStep(2);
-      onAgentChange?.('Experience');
-      addLog("💼 Optimizing work experience...");
+      // Call all tailoring endpoints in parallel
+      const [summaryResult, experienceResult, skillsResult, projectsResult, educationResult] = await Promise.allSettled([
+        // Step 1: Summary
+        apiService.tailorSummary(profileData, jd).then(summary => {
+          setCompletedSteps(prev => new Set(prev).add(1));
+          onAgentChange?.('Summary');
+          addLog("✅ Professional summary optimized");
+          return summary;
+        }),
 
-      // Step 3: Skills
-      setCurrentStep(3);
-      onAgentChange?.('Skills');
-      addLog("🛠️ Prioritizing relevant skills...");
+        // Step 2: Experience
+        apiService.tailorExperience(profileData, jd).then(experience => {
+          setCompletedSteps(prev => new Set(prev).add(2));
+          onAgentChange?.('Experience');
+          addLog("✅ Work experience optimized");
+          return experience;
+        }),
 
-      // Step 4: Projects
-      setCurrentStep(4);
-      onAgentChange?.('Projects');
-      addLog("🚀 Enhancing project descriptions...");
+        // Step 3: Skills
+        apiService.tailorSkills(profileData, jd).then(skills => {
+          setCompletedSteps(prev => new Set(prev).add(3));
+          onAgentChange?.('Skills');
+          addLog("✅ Skills prioritized");
+          return skills;
+        }),
 
-      // Step 5: Education
-      setCurrentStep(5);
-      onAgentChange?.('Education');
-      addLog("🎓 Reviewing education section...");
+        // Step 4: Projects
+        apiService.tailorProjects(profileData, jd).then(projects => {
+          setCompletedSteps(prev => new Set(prev).add(4));
+          onAgentChange?.('Projects');
+          addLog("✅ Projects enhanced");
+          return projects;
+        }),
 
-      // Call backend API to tailor the entire resume at once
-      // Note: Backend processes all sections in parallel, but we show steps for better UX
-      console.log('Sending tailor request with profile:', profileData);
-      tailoredResume = await apiService.tailorResume(profileData, jd);
-      console.log('Received tailored resume:', tailoredResume);
+        // Step 5: Education
+        apiService.tailorEducation(profileData, jd).then(education => {
+          setCompletedSteps(prev => new Set(prev).add(5));
+          onAgentChange?.('Education');
+          addLog("✅ Education reviewed");
+          return education;
+        })
+      ]);
 
-      if (!tailoredResume || typeof tailoredResume !== 'object') {
-        throw new Error('Invalid response from tailor API');
-      }
+      // Extract results or use fallbacks
+      const summary = summaryResult.status === 'fulfilled' ? summaryResult.value : '';
+      const experience = experienceResult.status === 'fulfilled' ? experienceResult.value : profileData.experience;
+      const skills = skillsResult.status === 'fulfilled' ? skillsResult.value : profileData.skills;
+      const projects = projectsResult.status === 'fulfilled' ? projectsResult.value : profileData.projects;
+      const education = educationResult.status === 'fulfilled' ? educationResult.value : profileData.education;
+
+      // Log any failures
+      if (summaryResult.status === 'rejected') addLog(`⚠️ Summary optimization failed: ${summaryResult.reason}`);
+      if (experienceResult.status === 'rejected') addLog(`⚠️ Experience optimization failed: ${experienceResult.reason}`);
+      if (skillsResult.status === 'rejected') addLog(`⚠️ Skills optimization failed: ${skillsResult.reason}`);
+      if (projectsResult.status === 'rejected') addLog(`⚠️ Projects optimization failed: ${projectsResult.reason}`);
+      if (educationResult.status === 'rejected') addLog(`⚠️ Education optimization failed: ${educationResult.reason}`);
+
+      // Build tailored resume
+      tailoredResume = {
+        ...profileData,
+        additionalInfo: summary,
+        experience,
+        skills,
+        projects,
+        education
+      };
 
       setTailoredData({ ...tailoredResume });
       onResult({ ...tailoredResume });
-      addLog("✅ Resume optimization complete!");
+      addLog("✨ All resume sections optimized!");
 
       // Step 6: Scoring
       setCurrentStep(6);
@@ -93,6 +129,7 @@ const AIBuildPage: React.FC<Props> = ({ profileData, jd, setJd, onResult, onAgen
 
       onScoreUpdate?.(scoreResult.score);
       addLog(`🎯 Optimization complete! ATS Match Score: ${scoreResult.score}%`);
+      setCompletedSteps(prev => new Set(prev).add(6));
 
       onAgentChange?.(null);
       addLog("✨ Agent workflow finished successfully.");
@@ -106,6 +143,7 @@ const AIBuildPage: React.FC<Props> = ({ profileData, jd, setJd, onResult, onAgen
     } finally {
       setLoading(false);
       setCurrentStep(0);
+      // Keep completedSteps visible to show what was accomplished
     }
   };
 
@@ -188,14 +226,48 @@ const AIBuildPage: React.FC<Props> = ({ profileData, jd, setJd, onResult, onAgen
           <div className="w-full lg:w-52 space-y-4 shrink-0">
             <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wide px-1">Optimization Steps</h3>
             <div className="space-y-2">
-              {steps.map((step, idx) => (
-                <div key={idx} className={`flex items-center gap-3 p-3 rounded-xl transition-all duration-300 border ${currentStep === idx + 1 ? 'bg-blue-50 border-blue-200 scale-[1.02] shadow-sm' : currentStep > idx + 1 ? 'bg-emerald-50 border-emerald-200' : 'bg-slate-50/50 border-transparent opacity-50'}`}>
-                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-all duration-300 ${currentStep === idx + 1 ? 'bg-blue-600 text-white shadow-md shadow-blue-500/30' : currentStep > idx + 1 ? 'bg-emerald-500 text-white' : 'bg-slate-200 text-slate-400'}`}>
-                    {currentStep > idx + 1 ? <i className="fas fa-check text-xs"></i> : <i className={`fas ${step.icon} text-xs`}></i>}
+              {steps.map((step, idx) => {
+                const stepNum = idx + 1;
+                const isCompleted = completedSteps.has(stepNum);
+                const isInProgress = loading && !isCompleted && stepNum <= 5; // Steps 1-5 are parallel processing
+
+                return (
+                  <div key={idx} className={`flex items-center gap-3 p-3 rounded-xl transition-all duration-300 border ${
+                    isCompleted
+                      ? 'bg-emerald-50 border-emerald-200'
+                      : isInProgress
+                        ? 'bg-blue-50 border-blue-200 scale-[1.02] shadow-sm'
+                        : stepNum === 6 && currentStep === 6
+                          ? 'bg-blue-50 border-blue-200 scale-[1.02] shadow-sm'
+                          : 'bg-slate-50/50 border-transparent opacity-50'
+                  }`}>
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-all duration-300 ${
+                      isCompleted
+                        ? 'bg-emerald-500 text-white'
+                        : isInProgress
+                          ? 'bg-blue-600 text-white shadow-md shadow-blue-500/30'
+                          : stepNum === 6 && currentStep === 6
+                            ? 'bg-blue-600 text-white shadow-md shadow-blue-500/30'
+                            : 'bg-slate-200 text-slate-400'
+                    }`}>
+                      {isCompleted ? (
+                        <i className="fas fa-check text-xs"></i>
+                      ) : isInProgress ? (
+                        <i className="fas fa-circle-notch fa-spin text-xs"></i>
+                      ) : (
+                        <i className={`fas ${step.icon} text-xs`}></i>
+                      )}
+                    </div>
+                    <span className={`text-xs font-semibold ${
+                      isCompleted
+                        ? 'text-emerald-700'
+                        : isInProgress || (stepNum === 6 && currentStep === 6)
+                          ? 'text-blue-700'
+                          : 'text-slate-400'
+                    }`}>{step.label}</span>
                   </div>
-                  <span className={`text-xs font-semibold ${currentStep === idx + 1 ? 'text-blue-700' : currentStep > idx + 1 ? 'text-emerald-700' : 'text-slate-400'}`}>{step.label}</span>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>

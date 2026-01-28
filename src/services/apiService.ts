@@ -111,6 +111,61 @@ class APIService {
     return response.summary;
   }
 
+  async tailorSummary(profileData: ResumeData, jobDescription: string) {
+    const response = await this.request('/ai/tailor-summary', {
+      method: 'POST',
+      body: JSON.stringify({
+        profileData,
+        jobDescription,
+      }),
+    });
+    return response.summary;
+  }
+
+  async tailorExperience(profileData: ResumeData, jobDescription: string) {
+    const response = await this.request('/ai/tailor-experience', {
+      method: 'POST',
+      body: JSON.stringify({
+        profileData,
+        jobDescription,
+      }),
+    });
+    return response.experience;
+  }
+
+  async tailorSkills(profileData: ResumeData, jobDescription: string) {
+    const response = await this.request('/ai/tailor-skills', {
+      method: 'POST',
+      body: JSON.stringify({
+        profileData,
+        jobDescription,
+      }),
+    });
+    return response.skills;
+  }
+
+  async tailorProjects(profileData: ResumeData, jobDescription: string) {
+    const response = await this.request('/ai/tailor-projects', {
+      method: 'POST',
+      body: JSON.stringify({
+        profileData,
+        jobDescription,
+      }),
+    });
+    return response.projects;
+  }
+
+  async tailorEducation(profileData: ResumeData, jobDescription: string) {
+    const response = await this.request('/ai/tailor-education', {
+      method: 'POST',
+      body: JSON.stringify({
+        profileData,
+        jobDescription,
+      }),
+    });
+    return response.education;
+  }
+
   async tailorResume(profileData: ResumeData, jobDescription: string) {
     const response = await this.request('/ai/tailor-resume', {
       method: 'POST',
