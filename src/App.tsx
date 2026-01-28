@@ -7,6 +7,7 @@ import ProfilePage from './components/ProfilePage';
 import AIBuildPage from './components/AIBuildPage';
 import SettingsPage from './components/SettingsPage';
 import CoverLetterPage from './components/CoverLetterPage';
+import WorkflowPage from './components/WorkflowPage';
 import ResumePreview from './components/ResumePreview';
 import CoverLetterPreview from './components/CoverLetterPreview';
 import AuthPage from './components/AuthPage';
@@ -245,6 +246,7 @@ const MainApp: React.FC = () => {
     [ViewMode.PROFILE]: 'Profile',
     [ViewMode.AI_BUILD]: 'Tailor',
     [ViewMode.COVER_LETTER]: 'Letter',
+    [ViewMode.WORKFLOW]: 'Workflow',
     [ViewMode.DIAGNOSTICS]: 'Settings'
   };
 
@@ -317,6 +319,7 @@ const MainApp: React.FC = () => {
             { mode: ViewMode.PROFILE, icon: 'fa-user' },
             { mode: ViewMode.AI_BUILD, icon: 'fa-wand-magic-sparkles' },
             { mode: ViewMode.COVER_LETTER, icon: 'fa-file-lines' },
+            { mode: ViewMode.WORKFLOW, icon: 'fa-diagram-project' },
             { mode: ViewMode.DIAGNOSTICS, icon: 'fa-gear' }
           ].map(({ mode, icon }) => (
             <button
@@ -356,12 +359,14 @@ const MainApp: React.FC = () => {
                     {view === ViewMode.PROFILE ? 'Your Profile' :
                      view === ViewMode.AI_BUILD ? 'AI Resume Tailor' :
                      view === ViewMode.COVER_LETTER ? 'Cover Letter' :
+                     view === ViewMode.WORKFLOW ? 'Workflow Designer' :
                      'Settings'}
                   </h1>
                   <p className="text-sm text-slate-500 mt-1">
                     {view === ViewMode.PROFILE ? 'Manage your personal information and experience' :
                      view === ViewMode.AI_BUILD ? 'Optimize your resume for any job description' :
                      view === ViewMode.COVER_LETTER ? 'Generate a personalized cover letter' :
+                     view === ViewMode.WORKFLOW ? 'Visualize and customize the AI optimization workflow' :
                      'AI configuration, account security, and system diagnostics'}
                   </p>
                 </div>
@@ -404,6 +409,7 @@ const MainApp: React.FC = () => {
                 onAgentChange={setActiveAgent}
               />
             )}
+            {view === ViewMode.WORKFLOW && <WorkflowPage />}
             {view === ViewMode.DIAGNOSTICS && <SettingsPage />}
           </div>
         </div>

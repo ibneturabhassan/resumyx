@@ -75,6 +75,7 @@ export enum ViewMode {
   PROFILE = 'profile',
   AI_BUILD = 'ai_build',
   COVER_LETTER = 'cover_letter',
+  WORKFLOW = 'workflow',
   DIAGNOSTICS = 'diagnostics'
 }
 

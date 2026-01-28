@@ -17,7 +17,21 @@
       "Bash(ls:*)",
       "Bash(node:*)",
       "mcp__render__get_service",
-      "Bash(git reset:*)"
+      "Bash(git reset:*)",
+      "Bash(python:*)",
+      "Bash(timeout /t 5)",
+      "Bash(pip install:*)",
+      "Bash(pip show:*)",
+      "Bash(taskkill:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(python3 -m uvicorn:*)",
+      "Bash(where:*)",
+      "Bash(py:*)",
+      "Bash(uv pip install:*)",
+      "Bash(uv venv:*)",
+      "Bash(.venv/Scripts/python.exe -m uvicorn:*)",
+      "Bash(python3:*)"
     ]
   }
 }
