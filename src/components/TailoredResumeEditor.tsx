@@ -47,6 +47,45 @@ const TailoredResumeEditor: React.FC<Props> = ({ data, originalData, onChange, o
     });
   };
 
+  const updateSkillCategory = (oldCategory: string, newCategory: string, value: string) => {
+    const skills = value.split(',').map(s => s.trim()).filter(Boolean);
+    const updatedSkills = { ...editingData.skills };
+
+    // Remove old category
+    delete updatedSkills[oldCategory as keyof typeof updatedSkills];
+
+    // Add new category
+    updatedSkills[newCategory as keyof typeof updatedSkills] = skills as any;
+
+    setEditingData({
+      ...editingData,
+      skills: updatedSkills
+    });
+  };
+
+  const removeSkillCategory = (category: string) => {
+    const updatedSkills = { ...editingData.skills };
+    delete updatedSkills[category as keyof typeof updatedSkills];
+    setEditingData({
+      ...editingData,
+      skills: updatedSkills
+    });
+  };
+
+  const addSkillCategory = () => {
+    const newCategory = prompt('Enter new skill category name (e.g., "Frameworks", "DevOps Tools"):');
+    if (newCategory && newCategory.trim()) {
+      const categoryKey = newCategory.trim().toLowerCase().replace(/\s+/g, '_');
+      setEditingData({
+        ...editingData,
+        skills: {
+          ...editingData.skills,
+          [categoryKey]: []
+        }
+      });
+    }
+  };
+
   const updateExperience = (id: string, field: string, value: any) => {
     const updated = editingData.experience.map(exp =>
       exp.id === id ? { ...exp, [field]: value } : exp
@@ -190,22 +229,54 @@ const TailoredResumeEditor: React.FC<Props> = ({ data, originalData, onChange, o
 
             {expandedSections.has('skills') && (
               <div className="px-6 pb-6 pt-2 space-y-4">
-                {['languages', 'databases', 'cloud', 'tools'].map((category) => {
-                  const skills = editingData.skills?.[category as keyof typeof editingData.skills] || [];
-                  if (!skills || skills.length === 0) return null;
+                {Object.entries(editingData.skills || {}).map(([category, skills]) => {
+                  // Skip if skills is not an array
+                  if (!Array.isArray(skills)) return null;
 
                   return (
-                    <div key={category}>
-                      <label className={labelClass}>{category.charAt(0).toUpperCase() + category.slice(1)}</label>
+                    <div key={category} className="relative bg-slate-50 p-4 rounded-lg border border-slate-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <input
+                          type="text"
+                          className="text-xs font-semibold text-slate-700 bg-white border border-slate-300 rounded px-2 py-1 hover:border-blue-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
+                          defaultValue={category.charAt(0).toUpperCase() + category.slice(1).replace(/_/g, ' ')}
+                          onBlur={(e) => {
+                            const newCategory = e.target.value.trim().toLowerCase().replace(/\s+/g, '_');
+                            if (newCategory && newCategory !== category) {
+                              updateSkillCategory(category, newCategory, skills.join(', '));
+                            }
+                          }}
+                          placeholder="Category name"
+                        />
+                        <button
+                          onClick={() => removeSkillCategory(category)}
+                          className="px-2 py-1 bg-red-50 text-red-600 rounded hover:bg-red-100 transition-colors text-xs font-medium"
+                          title="Remove category"
+                        >
+                          <i className="fas fa-trash text-xs mr-1"></i>
+                          Remove
+                        </button>
+                      </div>
                       <textarea
                         className={`${inputClass} h-20 resize-none`}
                         value={skills.join(', ')}
                         onChange={(e) => updateSkills(category, e.target.value)}
-                        placeholder={`${category} skills...`}
+                        placeholder={`Enter ${category.replace(/_/g, ' ')} skills (comma-separated)...`}
                       />
+                      <p className="text-xs text-slate-500 mt-2">
+                        {skills.filter(s => s.trim()).length} skill{skills.filter(s => s.trim()).length !== 1 ? 's' : ''}
+                      </p>
                     </div>
                   );
                 })}
+
+                <button
+                  onClick={addSkillCategory}
+                  className="w-full py-3 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 text-blue-600 rounded-lg hover:from-blue-100 hover:to-indigo-100 transition-all text-sm font-semibold flex items-center justify-center gap-2 hover:shadow-md"
+                >
+                  <i className="fas fa-plus"></i>
+                  <span>Add New Skill Category</span>
+                </button>
               </div>
             )}
           </div>
