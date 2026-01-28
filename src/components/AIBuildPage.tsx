@@ -41,13 +41,33 @@ const AIBuildPage: React.FC<Props> = ({ profileData, jd, setJd, onResult, onAgen
     let tailoredResume: ResumeData = { ...profileData };
 
     try {
+      // Step 1: Summary
       setCurrentStep(1);
-      onAgentChange?.('Processing');
-      addLog("🤖 AI agents analyzing your profile and job description...");
-      addLog("⚡ Running parallel optimization on all resume sections...");
+      onAgentChange?.('Summary');
+      addLog("📝 Tailoring professional summary...");
+
+      // Step 2: Experience
+      setCurrentStep(2);
+      onAgentChange?.('Experience');
+      addLog("💼 Optimizing work experience...");
+
+      // Step 3: Skills
+      setCurrentStep(3);
+      onAgentChange?.('Skills');
+      addLog("🛠️ Prioritizing relevant skills...");
+
+      // Step 4: Projects
+      setCurrentStep(4);
+      onAgentChange?.('Projects');
+      addLog("🚀 Enhancing project descriptions...");
+
+      // Step 5: Education
+      setCurrentStep(5);
+      onAgentChange?.('Education');
+      addLog("🎓 Reviewing education section...");
 
       // Call backend API to tailor the entire resume at once
-      // Backend processes all sections in parallel: Summary, Experience, Skills, Projects, Education
+      // Note: Backend processes all sections in parallel, but we show steps for better UX
       console.log('Sending tailor request with profile:', profileData);
       tailoredResume = await apiService.tailorResume(profileData, jd);
       console.log('Received tailored resume:', tailoredResume);
@@ -60,7 +80,8 @@ const AIBuildPage: React.FC<Props> = ({ profileData, jd, setJd, onResult, onAgen
       onResult({ ...tailoredResume });
       addLog("✅ Resume optimization complete!");
 
-      setCurrentStep(2);
+      // Step 6: Scoring
+      setCurrentStep(6);
       onAgentChange?.('Scoring');
       addLog("🎯 Calculating ATS compatibility score...");
       const scoreResult = await apiService.calculateATSScore(tailoredResume, jd);
@@ -89,8 +110,12 @@ const AIBuildPage: React.FC<Props> = ({ profileData, jd, setJd, onResult, onAgen
   };
 
   const steps = [
-    { label: 'AI Processing', icon: 'fa-robot' },
-    { label: 'ATS Scoring', icon: 'fa-bullseye' }
+    { label: 'Summary', icon: 'fa-align-left' },
+    { label: 'Experience', icon: 'fa-briefcase' },
+    { label: 'Skills', icon: 'fa-code' },
+    { label: 'Projects', icon: 'fa-diagram-project' },
+    { label: 'Education', icon: 'fa-graduation-cap' },
+    { label: 'Scoring', icon: 'fa-bullseye' }
   ];
 
   return (
