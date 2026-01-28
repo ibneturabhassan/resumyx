@@ -82,8 +82,8 @@ class BaseAIService(ABC):
 
     def _clean_cover_letter(self, content: str, candidate_name: str = "") -> str:
         """
-        Clean cover letter content by removing common salutations, closings, and signatures.
-        Returns only the body paragraphs of the cover letter.
+        AGGRESSIVELY clean cover letter to extract ONLY body paragraphs.
+        Removes greetings, closings, signatures - everything except substantive content.
         """
         import re
 
@@ -92,98 +92,75 @@ class BaseAIService(ABC):
         print(content)
         print(f"{'='*60}\n")
 
-        original_content = content
-
-        # Remove common salutations at the beginning
-        salutations = [
-            r'^Dear\s+(?:Hiring\s+Manager|Sir\/Madam|.*?Team|.*?Committee)[,:]?\s*\n*',
-            r'^To\s+Whom\s+It\s+May\s+Concern[,:]?\s*\n*',
-            r'^Hello[,:]?\s*\n*',
-            r'^Greetings[,:]?\s*\n*',
-        ]
-
-        for salutation in salutations:
-            content = re.sub(salutation, '', content, flags=re.IGNORECASE | re.MULTILINE)
-
-        # ULTRA AGGRESSIVE: Remove everything from "Sincerely" onwards (case insensitive, multiline)
-        # This will match "Sincerely" or "Sincerely," and everything after it
-        content = re.sub(r'(?i)\n*\s*sincerely\s*,?\s*.*$', '', content, flags=re.DOTALL)
-
-        # Also catch other common closings with DOTALL to get everything after
-        closing_phrases = [
-            'best regards', 'kind regards', 'warm regards', 'warmest regards',
-            'respectfully', 'respectfully yours', 'thank you for your consideration',
-            'thank you', 'thanks', 'yours truly', 'yours sincerely', 'yours faithfully',
-            'best', 'regards', 'cordially', 'with appreciation', 'gratefully'
-        ]
-
-        for phrase in closing_phrases:
-            # Match the phrase (case insensitive) and everything after it
-            pattern = rf'(?i)\n*\s*{re.escape(phrase)}\s*,?\s*.*$'
-            content = re.sub(pattern, '', content, flags=re.DOTALL)
-
-        # Remove standalone name at the end if provided
-        if candidate_name:
-            # Remove the full name (case insensitive)
-            content = re.sub(rf'(?i)\n*\s*{re.escape(candidate_name)}\s*$', '', content, flags=re.MULTILINE)
-
-            # Also try to remove just first and last name variations
-            name_parts = candidate_name.split()
-            if len(name_parts) >= 2:
-                first_name = name_parts[0]
-                last_name = name_parts[-1]
-                content = re.sub(rf'(?i)\n*\s*{re.escape(first_name)}\s+{re.escape(last_name)}\s*$', '', content, flags=re.MULTILINE)
-                # Also try just first name or just last name at the end
-                content = re.sub(rf'(?i)\n*\s*{re.escape(first_name)}\s*$', '', content, flags=re.MULTILINE)
-                content = re.sub(rf'(?i)\n*\s*{re.escape(last_name)}\s*$', '', content, flags=re.MULTILINE)
-
-        # Split into paragraphs and filter out non-substantive ones
+        # STEP 1: Split into paragraphs
         paragraphs = [p.strip() for p in content.split('\n\n') if p.strip()]
 
-        # Keep only paragraphs that:
-        # 1. Have more than 20 characters (substantive)
-        # 2. Don't contain common closing phrases
-        # 3. End with proper punctuation
-        substantive_paragraphs = []
-        closing_keywords = ['sincerely', 'regards', 'thank you', 'thanks', 'best', 'yours',
-                           'respectfully', 'cordially', 'gratefully', 'appreciation']
+        if not paragraphs:
+            return content
 
-        for para in paragraphs:
-            para_lower = para.lower()
-            # Skip if it's too short or contains closing keywords
-            if len(para) < 20:
-                continue
-            if any(keyword in para_lower for keyword in closing_keywords):
-                # But allow if it's a substantial paragraph (more than 100 chars)
-                if len(para) < 100:
-                    continue
-            substantive_paragraphs.append(para)
+        print(f"DEBUG: Found {len(paragraphs)} paragraphs")
 
-        # Rejoin paragraphs
-        content = '\n\n'.join(substantive_paragraphs)
+        # STEP 2: Remove greeting paragraph (first paragraph with Dear/Hello/etc)
+        greeting_patterns = [
+            r'dear\s+', r'to\s+whom', r'hello', r'greetings', r'hi\s+'
+        ]
 
-        # Remove any trailing lines that look like signatures
-        lines = content.split('\n')
-        while lines and len(lines[-1].strip()) > 0:
-            last_line = lines[-1].strip()
-            # Remove if: short (<=5 words) AND doesn't end with sentence punctuation
-            if len(last_line.split()) <= 5 and not last_line.endswith(('.', '!', '?')):
-                lines.pop()
+        if paragraphs:
+            first_para_lower = paragraphs[0].lower()
+            if any(re.search(pattern, first_para_lower) for pattern in greeting_patterns):
+                print(f"DEBUG: Removing greeting paragraph: {paragraphs[0][:50]}...")
+                paragraphs.pop(0)
+
+        # STEP 3: Remove closing paragraphs from the END
+        # These are ANY paragraphs containing closing keywords
+        closing_keywords = [
+            'sincerely', 'best regards', 'kind regards', 'warm regards',
+            'thank you for your consideration', 'thank you for considering',
+            'thank you', 'thanks', 'regards', 'best',
+            'yours truly', 'yours sincerely', 'yours faithfully',
+            'respectfully', 'cordially', 'gratefully',
+            'i look forward to', 'please feel free to contact',
+            'i would welcome the opportunity', 'looking forward'
+        ]
+
+        # Remove paragraphs from the end that contain closing keywords
+        while paragraphs:
+            last_para_lower = paragraphs[-1].lower()
+
+            # Check if last paragraph contains any closing keyword
+            contains_closing = any(keyword in last_para_lower for keyword in closing_keywords)
+
+            # Also remove if it's the candidate's name or very short
+            is_name = False
+            if candidate_name:
+                name_lower = candidate_name.lower()
+                is_name = name_lower in last_para_lower or len(paragraphs[-1]) < 30
+
+            if contains_closing or is_name:
+                print(f"DEBUG: Removing closing paragraph: {paragraphs[-1][:80]}...")
+                paragraphs.pop()
             else:
                 break
 
-        content = '\n'.join(lines)
+        # STEP 4: Remove any remaining single-line signatures at the end
+        if paragraphs:
+            # Check if last paragraph is suspiciously short (might be a signature line we missed)
+            while paragraphs and len(paragraphs[-1]) < 50:
+                print(f"DEBUG: Removing short trailing line: {paragraphs[-1]}")
+                paragraphs.pop()
 
-        # Clean up extra whitespace
+        # STEP 5: Rejoin and clean up
+        content = '\n\n'.join(paragraphs)
         content = content.strip()
 
-        # Remove multiple consecutive newlines (more than 2)
+        # Remove multiple consecutive newlines
         content = re.sub(r'\n{3,}', '\n\n', content)
 
         print(f"\n{'='*60}")
         print("DEBUG: Cleaned response:")
         print(content)
         print(f"{'='*60}\n")
+        print(f"DEBUG: Final paragraph count: {len(paragraphs)}")
 
         return content
 
