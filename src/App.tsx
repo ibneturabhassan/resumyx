@@ -414,57 +414,59 @@ const MainApp: React.FC = () => {
           </div>
         </div>
 
-        <div
-          ref={previewContainerRef}
-          className="hidden lg:flex w-[450px] xl:w-[550px] 2xl:w-[700px] bg-slate-100 border-l border-slate-200 overflow-hidden flex-col"
-        >
-          <div className="h-14 bg-white border-b border-slate-100 px-6 flex items-center justify-between shrink-0">
-            <div className="flex items-center gap-3">
-              <span className="text-xs font-semibold text-slate-500">
-                {view === ViewMode.COVER_LETTER ? 'Cover Letter Preview' : 'Resume Preview'}
-              </span>
-              {view !== ViewMode.COVER_LETTER && matchScore !== null && (
-                <div className="bg-emerald-50 text-emerald-600 px-2.5 py-1 rounded-md border border-emerald-100 flex items-center gap-1.5">
-                  <i className="fas fa-check-circle text-xs"></i>
-                  <span className="text-xs font-semibold">{matchScore}% Match</span>
-                </div>
-              )}
-            </div>
-
-            <button
-              onClick={handleDownload}
-              disabled={isGeneratingPdf}
-              className="bg-slate-900 text-white px-4 py-2 rounded-lg font-semibold text-xs shadow-md hover:bg-slate-800 hover:shadow-lg active:scale-[0.98] transition-all duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isGeneratingPdf ? (
-                <>
-                  <i className="fas fa-circle-notch fa-spin"></i>
-                  <span>Generating...</span>
-                </>
-              ) : (
-                <>
-                  <i className="fas fa-download"></i>
-                  <span>Export PDF</span>
-                </>
-              )}
-            </button>
-          </div>
-
-          <div className="flex-1 overflow-y-auto p-8 custom-scrollbar flex justify-center bg-slate-100">
-            <div
-              style={{ transform: `scale(${scale})`, transformOrigin: 'top center' }}
-              className="transition-transform duration-300"
-            >
-              <div className="shadow-2xl rounded-lg overflow-hidden">
-                 {view === ViewMode.COVER_LETTER
-                   ? <CoverLetterPreview data={previewData} />
-                   : <ResumePreview data={previewData} highlightedSection={activeAgent} />
-                 }
+        {view !== ViewMode.WORKFLOW && (
+          <div
+            ref={previewContainerRef}
+            className="hidden lg:flex w-[450px] xl:w-[550px] 2xl:w-[700px] bg-slate-100 border-l border-slate-200 overflow-hidden flex-col"
+          >
+            <div className="h-14 bg-white border-b border-slate-100 px-6 flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-3">
+                <span className="text-xs font-semibold text-slate-500">
+                  {view === ViewMode.COVER_LETTER ? 'Cover Letter Preview' : 'Resume Preview'}
+                </span>
+                {view !== ViewMode.COVER_LETTER && matchScore !== null && (
+                  <div className="bg-emerald-50 text-emerald-600 px-2.5 py-1 rounded-md border border-emerald-100 flex items-center gap-1.5">
+                    <i className="fas fa-check-circle text-xs"></i>
+                    <span className="text-xs font-semibold">{matchScore}% Match</span>
+                  </div>
+                )}
               </div>
-              <div className="h-32 w-full"></div>
+
+              <button
+                onClick={handleDownload}
+                disabled={isGeneratingPdf}
+                className="bg-slate-900 text-white px-4 py-2 rounded-lg font-semibold text-xs shadow-md hover:bg-slate-800 hover:shadow-lg active:scale-[0.98] transition-all duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isGeneratingPdf ? (
+                  <>
+                    <i className="fas fa-circle-notch fa-spin"></i>
+                    <span>Generating...</span>
+                  </>
+                ) : (
+                  <>
+                    <i className="fas fa-download"></i>
+                    <span>Export PDF</span>
+                  </>
+                )}
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-8 custom-scrollbar flex justify-center bg-slate-100">
+              <div
+                style={{ transform: `scale(${scale})`, transformOrigin: 'top center' }}
+                className="transition-transform duration-300"
+              >
+                <div className="shadow-2xl rounded-lg overflow-hidden">
+                   {view === ViewMode.COVER_LETTER
+                     ? <CoverLetterPreview data={previewData} />
+                     : <ResumePreview data={previewData} highlightedSection={activeAgent} />
+                   }
+                </div>
+                <div className="h-32 w-full"></div>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </main>
     </div>
   );
