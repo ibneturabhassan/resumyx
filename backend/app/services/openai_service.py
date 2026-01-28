@@ -256,7 +256,7 @@ Return only the JSON object:"""
         job_description: str,
         instructions: str = ""
     ) -> str:
-        prompt = f"""You are a professional cover letter writer. Generate ONLY body paragraphs - absolutely NO greeting, NO closing, NO signature.
+        prompt = f"""You are a professional cover letter writer. Create a complete, professional cover letter for this job application.
 
 Candidate Information:
 {json.dumps(profile_data.model_dump(), indent=2)}
@@ -267,29 +267,14 @@ Job Description:
 Additional Instructions:
 {instructions if instructions else "None"}
 
-CRITICAL RULES - YOU WILL BE PENALIZED FOR VIOLATIONS:
-1. Your response MUST start with the first word of the first paragraph
-2. Your response MUST end with the last punctuation mark of the last paragraph
-3. FORBIDDEN: "Dear", "To Whom", "Hello", "Sincerely", "Best regards", "Thank you", "Regards", candidate name, ANY closing phrase
-4. OUTPUT FORMAT: Write exactly 3-4 body paragraphs separated by blank lines
+Write a complete cover letter including:
+1. Professional greeting (e.g., "Dear Hiring Manager,")
+2. 3-4 body paragraphs highlighting relevant experience and skills
+3. Professional closing (e.g., "Sincerely,")
+4. Candidate's full name
 
-EXAMPLE (copy this EXACT format):
-I am writing to express my strong interest in this position. My background in [field] aligns perfectly with your requirements, and I am excited about the opportunity to contribute to your team's success.
+Keep the letter professional, concise, and tailored to the specific job requirements.
 
-During my tenure at [Company], I [specific achievement with metrics]. This experience has equipped me with [relevant skills] that directly address the challenges mentioned in your job posting.
+Cover Letter:"""
 
-I am particularly drawn to [specific aspect of company/role]. I am confident that my expertise in [relevant area] would enable me to make immediate contributions to your organization.
-
-YOUR OUTPUT (body paragraphs only, nothing else):"""
-
-        raw_content = await self._generate_completion(prompt)
-
-        print(f"\n[OPENAI] Raw response length: {len(raw_content)} characters")
-
-        # Clean the response to remove any salutations/closings that might still be included
-        candidate_name = profile_data.personalInfo.fullName if profile_data.personalInfo else ""
-        cleaned_content = self._clean_cover_letter(raw_content, candidate_name)
-
-        print(f"[OPENAI] Cleaned response length: {len(cleaned_content)} characters")
-
-        return cleaned_content
+        return await self._generate_completion(prompt)

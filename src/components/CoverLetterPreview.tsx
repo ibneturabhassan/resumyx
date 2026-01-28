@@ -133,11 +133,6 @@ const CoverLetterPreview: React.FC<Props> = ({ data }) => {
         <div className="letter-content">
           {coverLetter || "Your tailored cover letter will appear here. Start the Agent workflow to generate a professional, single-page narrative."}
         </div>
-
-        <div className="signature">
-          <p className="font-bold text-lg">Sincerely,</p>
-          <div className="mt-8 text-2xl" style={{ fontFamily: 'cursive' }}>{personalInfo.fullName}</div>
-        </div>
       </div>
     </div>
   );
