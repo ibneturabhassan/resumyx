@@ -137,7 +137,6 @@ const CoverLetterPreview: React.FC<Props> = ({ data }) => {
         <div className="signature">
           <p className="font-bold text-lg">Sincerely,</p>
           <div className="mt-8 text-2xl" style={{ fontFamily: 'cursive' }}>{personalInfo.fullName}</div>
-          <p className="mt-2 font-bold text-gray-900">{personalInfo.fullName}</p>
         </div>
       </div>
     </div>

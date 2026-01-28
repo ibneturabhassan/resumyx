@@ -272,8 +272,17 @@ Instructions:
 2. Address specific requirements from the job description
 3. Highlight relevant achievements and experiences
 4. Use professional but engaging tone
-5. Include proper salutation and closing
+5. DO NOT include any salutation (like "Dear Hiring Manager" or "To Whom It May Concern")
+6. DO NOT include any closing (like "Sincerely", "Best regards", "Thank you", etc.)
+7. DO NOT include the candidate's name or signature at the end
+8. Return ONLY the body paragraphs of the letter - the main content
 
-Return only the cover letter text:"""
+Return only the cover letter body paragraphs (no salutation, no closing, no signature):"""
 
-        return await self._generate_completion(prompt)
+        raw_content = await self._generate_completion(prompt)
+
+        # Clean the response to remove any salutations/closings that might still be included
+        candidate_name = profile_data.personalInfo.fullName if profile_data.personalInfo else ""
+        cleaned_content = self._clean_cover_letter(raw_content, candidate_name)
+
+        return cleaned_content

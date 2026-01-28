@@ -80,6 +80,50 @@ class BaseAIService(ABC):
         """Generate personalized cover letter"""
         pass
 
+    def _clean_cover_letter(self, content: str, candidate_name: str = "") -> str:
+        """
+        Clean cover letter content by removing common salutations, closings, and signatures.
+        Returns only the body paragraphs of the cover letter.
+        """
+        import re
+
+        # Remove common salutations at the beginning
+        salutations = [
+            r'^Dear\s+(?:Hiring\s+Manager|Sir\/Madam|.*?Team|.*?Committee)[,:]?\s*\n*',
+            r'^To\s+Whom\s+It\s+May\s+Concern[,:]?\s*\n*',
+            r'^Hello[,:]?\s*\n*',
+            r'^Greetings[,:]?\s*\n*',
+        ]
+
+        for salutation in salutations:
+            content = re.sub(salutation, '', content, flags=re.IGNORECASE | re.MULTILINE)
+
+        # Remove common closings and signatures at the end
+        closings = [
+            r'\n*\s*Sincerely[,]?\s*\n*.*$',
+            r'\n*\s*Best\s+regards[,]?\s*\n*.*$',
+            r'\n*\s*Kind\s+regards[,]?\s*\n*.*$',
+            r'\n*\s*Warm\s+regards[,]?\s*\n*.*$',
+            r'\n*\s*Respectfully[,]?\s*\n*.*$',
+            r'\n*\s*Thank\s+you[,]?\s*\n*.*$',
+            r'\n*\s*Yours\s+(?:truly|sincerely|faithfully)[,]?\s*\n*.*$',
+        ]
+
+        for closing in closings:
+            content = re.sub(closing, '', content, flags=re.IGNORECASE | re.MULTILINE)
+
+        # Remove standalone name at the end if provided
+        if candidate_name:
+            content = re.sub(rf'\n*\s*{re.escape(candidate_name)}\s*$', '', content, flags=re.IGNORECASE | re.MULTILINE)
+
+        # Clean up extra whitespace
+        content = content.strip()
+
+        # Remove multiple consecutive newlines (more than 2)
+        content = re.sub(r'\n{3,}', '\n\n', content)
+
+        return content
+
     def _handle_rate_limit_error(self, error_msg: str):
         """Check if error is a rate limit error and raise appropriate exception"""
         if "429" in error_msg or "quota" in error_msg.lower() or "rate limit" in error_msg.lower():
