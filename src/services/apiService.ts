@@ -119,7 +119,14 @@ class APIService {
         jobDescription,
       }),
     });
-    return response.tailoredResume;
+
+    // Transform TailoredResumeData (with 'summary') to ResumeData (with 'additionalInfo')
+    const tailored = response.tailoredResume;
+    return {
+      ...tailored,
+      additionalInfo: tailored.summary || '',  // Map summary -> additionalInfo
+      summary: undefined  // Remove summary field to avoid confusion
+    };
   }
 
   async calculateATSScore(profileData: ResumeData, jobDescription: string) {

@@ -83,6 +83,16 @@ const TailoredResumeEditor: React.FC<Props> = ({ data, originalData, onChange, o
     setEditingData({ ...editingData, projects: updated });
   };
 
+  const updateCertifications = (value: string) => {
+    const certs = value.split('\n').map(c => c.trim()).filter(Boolean);
+    setEditingData({ ...editingData, certifications: certs });
+  };
+
+  const removeCertification = (index: number) => {
+    const updated = editingData.certifications.filter((_, i) => i !== index);
+    setEditingData({ ...editingData, certifications: updated });
+  };
+
   const inputClass = "w-full p-3 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-all text-sm text-slate-900";
   const labelClass = "block text-xs font-semibold text-slate-700 mb-2";
 
@@ -403,6 +413,64 @@ const TailoredResumeEditor: React.FC<Props> = ({ data, originalData, onChange, o
               )}
             </div>
           ))}
+
+          {/* Certifications Section */}
+          {editingData.certifications && editingData.certifications.length > 0 && (
+            <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+              <button
+                onClick={() => toggleSection('certifications')}
+                className="w-full px-6 py-4 flex items-center justify-between hover:bg-slate-50 transition-colors"
+              >
+                <div className="flex items-center gap-3 flex-1">
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                    hasChanges('certifications', editingData.certifications, originalData.certifications)
+                      ? 'bg-emerald-100 text-emerald-600'
+                      : 'bg-slate-100 text-slate-600'
+                  }`}>
+                    <i className="fas fa-certificate text-sm"></i>
+                  </div>
+                  <div className="text-left flex-1">
+                    <h3 className="font-bold text-slate-900">Certifications</h3>
+                    <p className="text-xs text-slate-600">{editingData.certifications.length} certification{editingData.certifications.length !== 1 ? 's' : ''}</p>
+                    {hasChanges('certifications', editingData.certifications, originalData.certifications) && (
+                      <span className="text-xs text-emerald-600 font-medium">Modified</span>
+                    )}
+                  </div>
+                </div>
+                <i className={`fas fa-chevron-${expandedSections.has('certifications') ? 'up' : 'down'} text-slate-400`}></i>
+              </button>
+
+              {expandedSections.has('certifications') && (
+                <div className="px-6 pb-6 pt-2 space-y-3">
+                  <label className={labelClass}>Certifications (one per line)</label>
+                  <textarea
+                    className={`${inputClass} h-32 resize-none leading-relaxed`}
+                    value={editingData.certifications.join('\n')}
+                    onChange={(e) => updateCertifications(e.target.value)}
+                    placeholder="AWS Certified Solutions Architect&#10;Google Cloud Professional&#10;PMP Certification"
+                  />
+                  <p className="text-xs text-slate-500">
+                    {editingData.certifications.filter(c => c.trim()).length} certification{editingData.certifications.filter(c => c.trim()).length !== 1 ? 's' : ''}
+                  </p>
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    {editingData.certifications.map((cert, index) => (
+                      <div key={index} className="flex items-center gap-2 bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg text-xs">
+                        <i className="fas fa-certificate"></i>
+                        <span>{cert}</span>
+                        <button
+                          onClick={() => removeCertification(index)}
+                          className="ml-1 text-red-500 hover:text-red-700 transition-colors"
+                          title="Remove certification"
+                        >
+                          <i className="fas fa-times text-xs"></i>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Footer Actions */}
