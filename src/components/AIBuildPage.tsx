@@ -116,12 +116,13 @@ const AIBuildPage: React.FC<Props> = ({ profileData, jd, setJd, onResult, onAgen
       onResult({ ...tailoredResume });
       addLog("✨ All resume sections optimized!");
 
-      // Step 6: Scoring
+      // Step 6: Scoring - Use LLM to analyze complete assembled resume
       setCurrentStep(6);
       onAgentChange?.('Scoring');
-      addLog("🎯 Calculating ATS compatibility score...");
-      const scoreResult = await apiService.calculateATSScore(tailoredResume, jd);
-      console.log('Received ATS score:', scoreResult);
+      addLog("📋 Assembling complete resume for analysis...");
+      addLog("🎯 Using AI to calculate ATS compatibility score...");
+      const scoreResult = await apiService.calculateATSScoreLLM(tailoredResume, jd);
+      console.log('Received LLM ATS score:', scoreResult);
 
       if (!scoreResult || typeof scoreResult.score !== 'number') {
         throw new Error('Invalid response from ATS score API');

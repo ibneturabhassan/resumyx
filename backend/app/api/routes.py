@@ -359,6 +359,46 @@ async def calculate_ats_score(
             detail=error_msg
         )
 
+@router.post("/ai/ats-score-llm")
+async def calculate_ats_score_llm(
+    request: TailorRequest,
+    current_user: Dict[str, Any] = Depends(get_current_user)
+):
+    """Calculate ATS score using LLM analysis of complete assembled resume"""
+    try:
+        user_id = current_user["user_id"]
+        ai_service = await get_ai_service_for_user(user_id)
+
+        # Use AI service to analyze the complete assembled resume
+        result = await ai_service.calculate_ats_score(
+            request.profileData,
+            request.jobDescription
+        )
+
+        # LLM returns a simpler format: {"score": 85, "feedback": "..."}
+        # We'll enhance it with the heuristic breakdown for additional details
+        scorer = EnhancedATSScorer()
+        heuristic_result = scorer.calculate_comprehensive_score(
+            request.profileData,
+            request.jobDescription
+        )
+
+        return {
+            "score": result.get("score", 0),
+            "feedback": result.get("feedback", ""),
+            "breakdown": heuristic_result["breakdown"],
+            "missing_keywords": heuristic_result["missing_keywords"],
+            "strengths": heuristic_result["strengths"],
+            "improvements": heuristic_result["improvements"]
+        }
+    except Exception as e:
+        error_msg = str(e)
+        print(f"Error calculating LLM ATS score: {error_msg}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=error_msg
+        )
+
 @router.post("/ai/generate-cover-letter")
 async def generate_cover_letter(
     request: CoverLetterRequest,

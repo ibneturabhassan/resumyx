@@ -31,48 +31,25 @@ const getUserId = (): string => {
 
 const initialData: ResumeData = {
   personalInfo: {
-    fullName: 'Alex Rivera',
-    email: 'alex.rivera.dev@example.com',
-    phone: '(555) 123-4567',
-    location: 'San Francisco, CA',
-    linkedin: 'linkedin.com/in/alexrivera-data',
-    github: 'github.com/arivera-data'
+    fullName: '',
+    email: '',
+    phone: '',
+    location: '',
+    linkedin: '',
+    github: ''
   },
-  additionalInfo: 'I have 6+ years of experience in data engineering, specializing in building scalable ETL pipelines and distributed systems. I am passionate about optimizing data workflows and have a strong background in cloud architecture. I have led multiple teams and mentored junior engineers. I am looking for senior or lead data engineering roles where I can make significant impact on data infrastructure.',
+  additionalInfo: '',
   coverLetter: '',
   skills: {
-    languages: ['Python', 'SQL', 'Scala', 'Java', 'Go'],
-    databases: ['PostgreSQL', 'MongoDB', 'Redis', 'Cassandra', 'Elasticsearch'],
-    cloud: ['AWS (S3, Redshift, Lambda, EMR)', 'GCP (BigQuery, GCS)', 'Snowflake', 'Databricks'],
-    tools: ['Apache Spark', 'Apache Kafka', 'Airflow', 'Terraform', 'Docker', 'Kubernetes', 'dbt']
+    languages: [],
+    databases: [],
+    cloud: [],
+    tools: []
   },
-  experience: [
-    {
-      id: 'exp1',
-      company: 'DataStream Systems',
-      role: 'Senior Data Engineer',
-      location: 'Palo Alto, CA',
-      startDate: 'Jan 2021',
-      endDate: 'Present',
-      description: [
-        'Architected and implemented a real-time data processing pipeline using Spark Streaming and Kafka, processing 500M+ events daily.',
-        'Migrated legacy on-premise Hadoop cluster to AWS Redshift, resulting in a 30% reduction in monthly infrastructure costs.',
-        'Developed custom Airflow operators to automate complex ETL workflows, improving deployment speed by 50%.',
-        'Optimized SQL queries and indexing strategies for multi-terabyte datasets, reducing report generation time from hours to minutes.'
-      ]
-    }
-  ],
-  education: [
-    {
-      id: 'edu1',
-      institution: 'Georgia Institute of Technology',
-      degree: 'Master of Science in Computer Science',
-      location: 'Atlanta, GA',
-      graduationDate: 'May 2018'
-    }
-  ],
+  experience: [],
+  education: [],
   projects: [],
-  certifications: ['AWS Certified Data Engineer']
+  certifications: []
 };
 
 const safeLoad = (key: string, defaultVal: any): any => {
@@ -410,7 +387,7 @@ const MainApp: React.FC = () => {
               />
             )}
             {view === ViewMode.WORKFLOW && <WorkflowPage />}
-            {view === ViewMode.DIAGNOSTICS && <SettingsPage />}
+            {view === ViewMode.DIAGNOSTICS && <SettingsPage onResetProfile={handleReset} />}
           </div>
         </div>
 

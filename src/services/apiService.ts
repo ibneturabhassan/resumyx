@@ -194,6 +194,16 @@ class APIService {
     });
   }
 
+  async calculateATSScoreLLM(profileData: ResumeData, jobDescription: string) {
+    return this.request('/ai/ats-score-llm', {
+      method: 'POST',
+      body: JSON.stringify({
+        profileData,
+        jobDescription,
+      }),
+    });
+  }
+
   async generateCoverLetter(
     profileData: ResumeData,
     jobDescription: string,

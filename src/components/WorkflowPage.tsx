@@ -113,7 +113,7 @@ const WorkflowPage: React.FC<Props> = () => {
       type: 'promptNode',
       data: {
         label: 'Professional Summary',
-        description: 'Step 1/6',
+        description: 'Parallel Step 1',
         icon: 'fa-align-left',
         color: 'bg-violet-600',
         prompt: 'Create a compelling 2-3 sentence professional summary. Highlight the most relevant skills and experiences for THIS specific job. Use keywords from the job description naturally.',
@@ -126,65 +126,72 @@ const WorkflowPage: React.FC<Props> = () => {
       type: 'promptNode',
       data: {
         label: 'Work Experience',
-        description: 'Step 2/6',
+        description: 'Parallel Step 2',
         icon: 'fa-briefcase',
         color: 'bg-blue-600',
         prompt: 'SELECT and prioritize the 4-6 most relevant bullet points per role. Rewrite bullets to emphasize achievements that align with the job description. Use strong action verbs and quantify results.',
         onPromptChange: handlePromptChange,
       },
-      position: { x: 450, y: 120 },
+      position: { x: 250, y: 120 },
     },
     {
       id: 'skills',
       type: 'promptNode',
       data: {
         label: 'Skills',
-        description: 'Step 3/6',
+        description: 'Parallel Step 3',
         icon: 'fa-code',
         color: 'bg-cyan-600',
         prompt: 'SELECT only the most relevant skills (5-8 per category) from the original list that match the job requirements. Remove skills that are NOT mentioned or relevant to the job description.',
         onPromptChange: handlePromptChange,
       },
-      position: { x: 50, y: 380 },
+      position: { x: 450, y: 120 },
     },
     {
       id: 'projects',
       type: 'promptNode',
       data: {
         label: 'Projects',
-        description: 'Step 4/6',
+        description: 'Parallel Step 4',
         icon: 'fa-diagram-project',
         color: 'bg-indigo-600',
         prompt: 'Rewrite project descriptions to emphasize relevant technologies and achievements. Incorporate keywords from the job description naturally while maintaining authenticity.',
         onPromptChange: handlePromptChange,
       },
-      position: { x: 450, y: 380 },
+      position: { x: 650, y: 120 },
     },
     {
       id: 'education',
       type: 'promptNode',
       data: {
         label: 'Education',
-        description: 'Step 5/6',
+        description: 'Parallel Step 5',
         icon: 'fa-graduation-cap',
         color: 'bg-purple-600',
         prompt: 'Review education section for relevance. Typically no modifications needed unless specific coursework or honors align with job requirements.',
         onPromptChange: handlePromptChange,
       },
-      position: { x: 250, y: 640 },
+      position: { x: 850, y: 120 },
+    },
+    {
+      id: 'assembly',
+      type: 'default',
+      data: { label: '📋 Assemble Complete Resume' },
+      position: { x: 250, y: 400 },
+      className: 'bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold rounded-lg px-6 py-4 shadow-lg border-0',
     },
     {
       id: 'ats-score',
       type: 'promptNode',
       data: {
         label: 'ATS Scoring',
-        description: 'Step 6/6',
+        description: 'Final Analysis',
         icon: 'fa-bullseye',
         color: 'bg-rose-600',
-        prompt: 'Analyze keyword matching, skills alignment, experience relevance, and format compatibility. Provide a score from 0-100 and brief feedback on improvements.',
+        prompt: 'Analyze the COMPLETE assembled resume against the job description. Evaluate keyword matching, skills alignment, experience relevance, and format compatibility. Provide a score from 0-100 and specific feedback.',
         onPromptChange: handlePromptChange,
       },
-      position: { x: 250, y: 900 },
+      position: { x: 250, y: 640 },
     },
     {
       id: 'cover-letter',
@@ -197,26 +204,39 @@ const WorkflowPage: React.FC<Props> = () => {
         prompt: 'Create a complete, professional cover letter (300 words max) including greeting, 3-4 body paragraphs, closing, and candidate name. Keep it concise and tailored to the job.',
         onPromptChange: handlePromptChange,
       },
-      position: { x: 250, y: 1160 },
+      position: { x: 250, y: 900 },
     },
     {
       id: 'end',
       type: 'output',
       data: { label: 'Optimized Resume & Cover Letter' },
-      position: { x: 250, y: 1420 },
+      position: { x: 250, y: 1160 },
       className: 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-bold rounded-lg px-4 py-3 shadow-lg border-0',
     },
   ];
 
   const initialEdges: Edge[] = [
+    // Start to all parallel nodes
     { id: 'e-start-summary', source: 'start', target: 'summary', animated: true, style: { stroke: '#8b5cf6' } },
     { id: 'e-start-experience', source: 'start', target: 'experience', animated: true, style: { stroke: '#3b82f6' } },
-    { id: 'e-summary-skills', source: 'summary', target: 'skills', animated: true, style: { stroke: '#06b6d4' } },
-    { id: 'e-experience-projects', source: 'experience', target: 'projects', animated: true, style: { stroke: '#6366f1' } },
-    { id: 'e-skills-education', source: 'skills', target: 'education', animated: true, style: { stroke: '#a855f7' } },
-    { id: 'e-projects-education', source: 'projects', target: 'education', animated: true, style: { stroke: '#a855f7' } },
-    { id: 'e-education-ats', source: 'education', target: 'ats-score', animated: true, style: { stroke: '#f43f5e' } },
+    { id: 'e-start-skills', source: 'start', target: 'skills', animated: true, style: { stroke: '#06b6d4' } },
+    { id: 'e-start-projects', source: 'start', target: 'projects', animated: true, style: { stroke: '#6366f1' } },
+    { id: 'e-start-education', source: 'start', target: 'education', animated: true, style: { stroke: '#a855f7' } },
+
+    // All parallel nodes to assembly
+    { id: 'e-summary-assembly', source: 'summary', target: 'assembly', animated: true, style: { stroke: '#3b82f6' } },
+    { id: 'e-experience-assembly', source: 'experience', target: 'assembly', animated: true, style: { stroke: '#3b82f6' } },
+    { id: 'e-skills-assembly', source: 'skills', target: 'assembly', animated: true, style: { stroke: '#3b82f6' } },
+    { id: 'e-projects-assembly', source: 'projects', target: 'assembly', animated: true, style: { stroke: '#3b82f6' } },
+    { id: 'e-education-assembly', source: 'education', target: 'assembly', animated: true, style: { stroke: '#3b82f6' } },
+
+    // Assembly to ATS scoring
+    { id: 'e-assembly-ats', source: 'assembly', target: 'ats-score', animated: true, style: { stroke: '#f43f5e', strokeWidth: 3 } },
+
+    // ATS to cover letter
     { id: 'e-ats-cover', source: 'ats-score', target: 'cover-letter', animated: true, style: { stroke: '#f59e0b' } },
+
+    // Cover letter to end
     { id: 'e-cover-end', source: 'cover-letter', target: 'end', animated: true, style: { stroke: '#10b981' } },
   ];
 

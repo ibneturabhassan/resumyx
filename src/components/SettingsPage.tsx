@@ -43,7 +43,11 @@ const fallbackProviders: AIProviderInfo[] = [
   }
 ];
 
-const SettingsPage: React.FC = () => {
+interface Props {
+  onResetProfile?: () => void;
+}
+
+const SettingsPage: React.FC<Props> = ({ onResetProfile }) => {
   const { session } = useAuth();
   const [activeTab, setActiveTab] = useState<'ai' | 'account' | 'system'>('ai');
 
@@ -637,6 +641,43 @@ const SettingsPage: React.FC = () => {
               )}
             </button>
           </form>
+        </div>
+      )}
+
+      {/* Reset Profile Data Section */}
+      {activeTab === 'account' && onResetProfile && (
+        <div className={sectionClass}>
+          <div className="flex items-start gap-4 mb-6 pb-6 border-b border-slate-100">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-red-600 to-orange-600 flex items-center justify-center text-white flex-shrink-0">
+              <i className="fas fa-trash-restore text-xl"></i>
+            </div>
+            <div className="flex-1">
+              <h3 className="text-xl font-bold text-slate-800 mb-2">Reset Profile Data</h3>
+              <p className="text-slate-600 text-sm leading-relaxed">
+                Clear all your profile information and start fresh. This will delete your personal info, experience, education, projects, skills, and certifications from both the database and local storage.
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-red-50 border border-red-200 rounded-xl p-5 mb-6">
+            <div className="flex gap-3">
+              <i className="fas fa-exclamation-triangle text-red-600 mt-1"></i>
+              <div>
+                <h4 className="font-semibold text-red-900 mb-1 text-sm">Warning: This action cannot be undone!</h4>
+                <p className="text-red-700 text-sm">
+                  All your resume data will be permanently deleted. Make sure to download your resume before proceeding if you want to keep a copy.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <button
+            onClick={onResetProfile}
+            className="w-full py-4 rounded-xl font-semibold text-sm flex items-center justify-center gap-3 transition-all duration-200 shadow-lg bg-gradient-to-r from-red-600 to-orange-600 text-white hover:shadow-xl hover:-translate-y-0.5 active:scale-[0.98]"
+          >
+            <i className="fas fa-trash-restore"></i>
+            <span>Reset All Profile Data</span>
+          </button>
         </div>
       )}
 

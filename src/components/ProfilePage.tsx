@@ -310,6 +310,29 @@ const ProfilePage: React.FC<Props> = ({ data, onChange }) => {
           ))}
         </div>
       </section>
+
+      {/* Certifications */}
+      <section className={sectionClass}>
+        <div className="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100">
+          <div className="w-8 h-8 rounded-lg bg-amber-600 flex items-center justify-center text-white">
+            <i className="fas fa-certificate text-xs"></i>
+          </div>
+          <h2 className="text-xl font-bold text-slate-800">Certifications</h2>
+        </div>
+        <div className="space-y-3">
+          <label className={labelClass}>Certifications (one per line)</label>
+          <textarea
+            className={`${inputClass} h-32 resize-none leading-relaxed`}
+            value={(data.certifications || []).join('\n')}
+            onChange={(e) => {
+              const certList = e.target.value.split('\n').filter(cert => cert.trim());
+              onChange({ ...data, certifications: certList });
+            }}
+            placeholder="e.g., AWS Certified Solutions Architect&#10;Google Cloud Professional Data Engineer&#10;Certified Kubernetes Administrator (CKA)"
+          />
+          <p className="text-xs text-slate-500 italic">Enter one certification per line</p>
+        </div>
+      </section>
     </div>
   );
 };
