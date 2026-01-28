@@ -278,17 +278,30 @@ Job Description:
 Additional Instructions:
 {instructions if instructions else "None"}
 
-Instructions:
-1. Create a compelling cover letter (3-4 paragraphs)
-2. Address specific requirements from the job description
-3. Highlight relevant achievements and experiences
-4. Use professional but engaging tone
-5. DO NOT include any salutation (like "Dear Hiring Manager" or "To Whom It May Concern")
-6. DO NOT include any closing (like "Sincerely", "Best regards", "Thank you", etc.)
-7. DO NOT include the candidate's name or signature at the end
-8. Return ONLY the body paragraphs of the letter - the main content
+CRITICAL FORMATTING REQUIREMENTS:
+1. Write ONLY the body paragraphs (3-4 paragraphs)
+2. Start immediately with the first paragraph - NO greeting, NO "Dear", NO salutation of any kind
+3. End with the last paragraph - DO NOT add "Sincerely", "Best regards", "Thank you", or ANY closing phrase
+4. DO NOT include the candidate's name anywhere
+5. DO NOT add a signature or sign-off
 
-Return only the cover letter body paragraphs (no salutation, no closing, no signature):"""
+WHAT TO WRITE:
+- First paragraph: Express enthusiasm and explain why you're a strong fit
+- Middle paragraphs: Highlight relevant achievements and experiences matching the job
+- Final paragraph: Express interest in discussing further and contributing to the company
+
+EXAMPLES OF WHAT NOT TO INCLUDE:
+❌ "Dear Hiring Manager,"
+❌ "To Whom It May Concern,"
+❌ "Sincerely,"
+❌ "Best regards,"
+❌ "Thank you for your consideration,"
+❌ "[Candidate Name]"
+
+Your response should START with the first sentence of the body and END with the last sentence of the body.
+No greetings before. No closings after. Just the paragraphs.
+
+Cover Letter Body (paragraphs only):"""
 
         try:
             response = self.client.generate_content(prompt)

@@ -98,23 +98,53 @@ class BaseAIService(ABC):
         for salutation in salutations:
             content = re.sub(salutation, '', content, flags=re.IGNORECASE | re.MULTILINE)
 
-        # Remove common closings and signatures at the end
-        closings = [
-            r'\n*\s*Sincerely[,]?\s*\n*.*$',
-            r'\n*\s*Best\s+regards[,]?\s*\n*.*$',
-            r'\n*\s*Kind\s+regards[,]?\s*\n*.*$',
-            r'\n*\s*Warm\s+regards[,]?\s*\n*.*$',
-            r'\n*\s*Respectfully[,]?\s*\n*.*$',
-            r'\n*\s*Thank\s+you[,]?\s*\n*.*$',
-            r'\n*\s*Yours\s+(?:truly|sincerely|faithfully)[,]?\s*\n*.*$',
+        # Remove common closings and everything after them (more aggressive)
+        # Match the closing phrase and everything that follows
+        closing_patterns = [
+            r'\n+\s*Sincerely[,]?.*',
+            r'\n+\s*Best\s+regards[,]?.*',
+            r'\n+\s*Kind\s+regards[,]?.*',
+            r'\n+\s*Warm\s+regards[,]?.*',
+            r'\n+\s*Warmest\s+regards[,]?.*',
+            r'\n+\s*Respectfully[,]?.*',
+            r'\n+\s*Respectfully\s+yours[,]?.*',
+            r'\n+\s*Thank\s+you[,]?.*',
+            r'\n+\s*Thanks[,]?.*',
+            r'\n+\s*Yours\s+(?:truly|sincerely|faithfully)[,]?.*',
+            r'\n+\s*Best[,]?.*',
+            r'\n+\s*Regards[,]?.*',
+            r'\n+\s*Cordially[,]?.*',
         ]
 
-        for closing in closings:
-            content = re.sub(closing, '', content, flags=re.IGNORECASE | re.MULTILINE)
+        for pattern in closing_patterns:
+            content = re.sub(pattern, '', content, flags=re.IGNORECASE | re.DOTALL)
 
         # Remove standalone name at the end if provided
         if candidate_name:
+            # Remove the full name
             content = re.sub(rf'\n*\s*{re.escape(candidate_name)}\s*$', '', content, flags=re.IGNORECASE | re.MULTILINE)
+
+            # Also try to remove just first and last name variations
+            name_parts = candidate_name.split()
+            if len(name_parts) >= 2:
+                first_name = name_parts[0]
+                last_name = name_parts[-1]
+                content = re.sub(rf'\n*\s*{re.escape(first_name)}\s+{re.escape(last_name)}\s*$', '', content, flags=re.IGNORECASE | re.MULTILINE)
+
+        # Remove any trailing lines that look like signatures (single lines at the end)
+        # This catches cases where just a name appears on the last line
+        lines = content.split('\n')
+        while lines and len(lines[-1].strip()) > 0 and len(lines[-1].strip().split()) <= 4:
+            # If the last line has 4 or fewer words, it might be a signature
+            # Check if it's just a name or short phrase
+            last_line = lines[-1].strip()
+            # If it doesn't end with punctuation and is short, probably a signature
+            if not last_line.endswith(('.', '!', '?', ',', ';', ':')):
+                lines.pop()
+            else:
+                break
+
+        content = '\n'.join(lines)
 
         # Clean up extra whitespace
         content = content.strip()
