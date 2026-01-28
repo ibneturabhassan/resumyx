@@ -296,7 +296,7 @@ Return only the JSON object:"""
         job_description: str,
         instructions: str = ""
     ) -> str:
-        prompt = f"""You are an expert cover letter writer. Create a personalized, professional cover letter.
+        prompt = f"""You are a professional cover letter writer. Create a complete, professional cover letter for this job application.
 
 Candidate Information:
 {json.dumps(profile_data.model_dump(), indent=2)}
@@ -307,13 +307,14 @@ Job Description:
 Additional Instructions:
 {instructions if instructions else "None"}
 
-Instructions:
-1. Create a compelling cover letter (3-4 paragraphs)
-2. Address specific requirements from the job description
-3. Highlight relevant achievements and experiences
-4. Use professional but engaging tone
-5. Include proper salutation and closing
+Write a complete cover letter including:
+1. Professional greeting (e.g., "Dear Hiring Manager,")
+2. 3-4 body paragraphs highlighting relevant experience and skills
+3. Professional closing (e.g., "Sincerely,")
+4. Candidate's full name
 
-Return only the cover letter text:"""
+Keep the letter professional, concise, and tailored to the specific job requirements.
+
+Cover Letter:"""
 
         return await self._generate_completion(prompt)
