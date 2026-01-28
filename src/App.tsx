@@ -284,14 +284,14 @@ const MainApp: React.FC = () => {
         document.getElementById('print-portal-root')!
       )}
 
-      <aside className="no-print w-[72px] flex flex-col items-center py-6 bg-white border-r border-slate-200 sticky top-0 h-screen z-50 shrink-0">
+      <aside className="no-print w-[72px] flex flex-col items-center py-6 bg-white border-r border-slate-200 fixed left-0 top-0 h-screen z-50">
         <div
           className="w-10 h-10 bg-slate-900 rounded-lg flex items-center justify-center text-white font-bold text-base mb-8 cursor-pointer hover:bg-slate-800 transition-colors"
           onClick={() => setView(ViewMode.PROFILE)}
         >
           R
         </div>
-        <nav className="flex-1 flex flex-col gap-1 w-full px-2">
+        <nav className="flex-1 flex flex-col gap-1 w-full px-2 overflow-y-auto">
           {[
             { mode: ViewMode.PROFILE, icon: 'fa-user' },
             { mode: ViewMode.AI_BUILD, icon: 'fa-wand-magic-sparkles' },
@@ -314,7 +314,7 @@ const MainApp: React.FC = () => {
         </nav>
 
         {/* User menu at bottom */}
-        <div className="w-full px-2 pb-2">
+        <div className="w-full px-2 mt-auto">
           <button
             onClick={logout}
             className="w-full py-3 flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200"
@@ -326,7 +326,7 @@ const MainApp: React.FC = () => {
         </div>
       </aside>
 
-      <main className="flex-1 flex min-w-0 no-print">
+      <main className="flex-1 flex min-w-0 no-print ml-[72px]">
         <div className="flex-1 overflow-y-auto px-8 py-8 xl:px-12 xl:py-10 bg-slate-100">
           <div className={view === ViewMode.WORKFLOW ? 'max-w-full mx-auto' : 'max-w-4xl mx-auto'}>
             <header className="mb-8">
