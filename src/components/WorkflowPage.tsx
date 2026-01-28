@@ -105,7 +105,7 @@ const WorkflowPage: React.FC<Props> = () => {
       id: 'start',
       type: 'input',
       data: { label: 'Start: User Profile & Job Description' },
-      position: { x: 250, y: 0 },
+      position: { x: 760, y: 0 },
       className: 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-bold rounded-lg px-4 py-3 shadow-lg border-0',
     },
     {
@@ -119,7 +119,7 @@ const WorkflowPage: React.FC<Props> = () => {
         prompt: 'Create a compelling 2-3 sentence professional summary. Highlight the most relevant skills and experiences for THIS specific job. Use keywords from the job description naturally.',
         onPromptChange: handlePromptChange,
       },
-      position: { x: 50, y: 120 },
+      position: { x: 0, y: 150 },
     },
     {
       id: 'experience',
@@ -132,7 +132,7 @@ const WorkflowPage: React.FC<Props> = () => {
         prompt: 'SELECT and prioritize the 4-6 most relevant bullet points per role. Rewrite bullets to emphasize achievements that align with the job description. Use strong action verbs and quantify results.',
         onPromptChange: handlePromptChange,
       },
-      position: { x: 250, y: 120 },
+      position: { x: 380, y: 150 },
     },
     {
       id: 'skills',
@@ -145,7 +145,7 @@ const WorkflowPage: React.FC<Props> = () => {
         prompt: 'SELECT only the most relevant skills (5-8 per category) from the original list that match the job requirements. Remove skills that are NOT mentioned or relevant to the job description.',
         onPromptChange: handlePromptChange,
       },
-      position: { x: 450, y: 120 },
+      position: { x: 760, y: 150 },
     },
     {
       id: 'projects',
@@ -158,7 +158,7 @@ const WorkflowPage: React.FC<Props> = () => {
         prompt: 'Rewrite project descriptions to emphasize relevant technologies and achievements. Incorporate keywords from the job description naturally while maintaining authenticity.',
         onPromptChange: handlePromptChange,
       },
-      position: { x: 650, y: 120 },
+      position: { x: 1140, y: 150 },
     },
     {
       id: 'education',
@@ -171,13 +171,13 @@ const WorkflowPage: React.FC<Props> = () => {
         prompt: 'Review education section for relevance. Typically no modifications needed unless specific coursework or honors align with job requirements.',
         onPromptChange: handlePromptChange,
       },
-      position: { x: 850, y: 120 },
+      position: { x: 1520, y: 150 },
     },
     {
       id: 'assembly',
       type: 'default',
       data: { label: '📋 Assemble Complete Resume' },
-      position: { x: 250, y: 400 },
+      position: { x: 760, y: 480 },
       className: 'bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold rounded-lg px-6 py-4 shadow-lg border-0',
     },
     {
@@ -191,7 +191,7 @@ const WorkflowPage: React.FC<Props> = () => {
         prompt: 'Analyze the COMPLETE assembled resume against the job description. Evaluate keyword matching, skills alignment, experience relevance, and format compatibility. Provide a score from 0-100 and specific feedback.',
         onPromptChange: handlePromptChange,
       },
-      position: { x: 250, y: 640 },
+      position: { x: 760, y: 720 },
     },
     {
       id: 'cover-letter',
@@ -204,13 +204,13 @@ const WorkflowPage: React.FC<Props> = () => {
         prompt: 'Create a complete, professional cover letter (300 words max) including greeting, 3-4 body paragraphs, closing, and candidate name. Keep it concise and tailored to the job.',
         onPromptChange: handlePromptChange,
       },
-      position: { x: 250, y: 900 },
+      position: { x: 760, y: 1000 },
     },
     {
       id: 'end',
       type: 'output',
       data: { label: 'Optimized Resume & Cover Letter' },
-      position: { x: 250, y: 1160 },
+      position: { x: 760, y: 1280 },
       className: 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-bold rounded-lg px-4 py-3 shadow-lg border-0',
     },
   ];
@@ -271,7 +271,7 @@ const WorkflowPage: React.FC<Props> = () => {
           </div>
         </div>
 
-        <div className="h-[800px] bg-slate-50 border-2 border-slate-200 rounded-xl overflow-hidden">
+        <div className="h-[900px] bg-slate-50 border-2 border-slate-200 rounded-xl overflow-hidden">
           <ReactFlow
             nodes={nodes}
             edges={edges}

@@ -328,7 +328,7 @@ const MainApp: React.FC = () => {
 
       <main className="flex-1 flex min-w-0 no-print">
         <div className="flex-1 overflow-y-auto px-8 py-8 xl:px-12 xl:py-10 bg-slate-100">
-          <div className="max-w-4xl mx-auto">
+          <div className={view === ViewMode.WORKFLOW ? 'max-w-full mx-auto' : 'max-w-4xl mx-auto'}>
             <header className="mb-8">
               <div className="flex items-center justify-between">
                 <div>
