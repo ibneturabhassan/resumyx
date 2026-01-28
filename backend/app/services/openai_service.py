@@ -256,7 +256,10 @@ Return only the JSON object:"""
         job_description: str,
         instructions: str = ""
     ) -> str:
-        prompt = f"""You are an expert cover letter writer. Create a personalized, professional cover letter.
+        prompt = f"""You are a professional cover letter writer. Your task is to write ONLY the body paragraphs of a cover letter.
+
+STRICT OUTPUT FORMAT RULE:
+You MUST output ONLY the main body paragraphs. DO NOT include any greeting, salutation, closing, or signature.
 
 Candidate Information:
 {json.dumps(profile_data.model_dump(), indent=2)}
@@ -267,30 +270,26 @@ Job Description:
 Additional Instructions:
 {instructions if instructions else "None"}
 
-CRITICAL FORMATTING REQUIREMENTS:
-1. Write ONLY the body paragraphs (3-4 paragraphs)
-2. Start immediately with the first paragraph - NO greeting, NO "Dear", NO salutation of any kind
-3. End with the last paragraph - DO NOT add "Sincerely", "Best regards", "Thank you", or ANY closing phrase
-4. DO NOT include the candidate's name anywhere
-5. DO NOT add a signature or sign-off
+EXAMPLE OF CORRECT OUTPUT FORMAT:
+(Start your response exactly like this - notice NO greeting at the start and NO closing at the end)
 
-WHAT TO WRITE:
-- First paragraph: Express enthusiasm and explain why you're a strong fit
-- Middle paragraphs: Highlight relevant achievements and experiences matching the job
-- Final paragraph: Express interest in discussing further and contributing to the company
+I am excited to apply for this position as my background in software engineering aligns perfectly with your requirements. With over 5 years of experience in full-stack development, I have consistently delivered scalable solutions that drive business growth.
 
-EXAMPLES OF WHAT NOT TO INCLUDE:
-❌ "Dear Hiring Manager,"
-❌ "To Whom It May Concern,"
-❌ "Sincerely,"
-❌ "Best regards,"
-❌ "Thank you for your consideration,"
-❌ "[Candidate Name]"
+In my previous role at TechCorp, I led a team of 4 developers to build a microservices architecture that reduced system latency by 40%. I also implemented CI/CD pipelines that accelerated deployment cycles by 60%, directly supporting the company's agile transformation goals.
 
-Your response should START with the first sentence of the body and END with the last sentence of the body.
-No greetings before. No closings after. Just the paragraphs.
+I am particularly drawn to your company's innovative approach to cloud computing and would welcome the opportunity to contribute my expertise in distributed systems and DevOps practices to your team.
 
-Cover Letter Body (paragraphs only):"""
+(Notice the output ENDS with the last sentence - no "Sincerely", no name, nothing after)
+
+WHAT YOU MUST NOT INCLUDE:
+- NO "Dear" or any greeting at the start
+- NO "Sincerely" or any closing at the end
+- NO candidate name
+- NO signature
+
+Write 3-4 paragraphs of body content ONLY. Start with the first word of paragraph 1. End with the last word of the final paragraph. Nothing before, nothing after.
+
+Body paragraphs:"""
 
         raw_content = await self._generate_completion(prompt)
 
