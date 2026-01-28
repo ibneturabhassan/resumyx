@@ -273,6 +273,7 @@ Write a complete cover letter including:
 3. Professional closing (e.g., "Sincerely,")
 4. Candidate's full name
 
+IMPORTANT: Keep the total word count to approximately 300 words or less.
 Keep the letter professional, concise, and tailored to the specific job requirements.
 
 Cover Letter:"""
