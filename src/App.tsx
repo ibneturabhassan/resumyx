@@ -11,6 +11,7 @@ import WorkflowPage from './components/WorkflowPage';
 import ProposalPage from './components/ProposalPage';
 import ResumePreview from './components/ResumePreview';
 import CoverLetterPreview from './components/CoverLetterPreview';
+import SuggestedItemsPanel from './components/SuggestedItemsPanel';
 import AuthPage from './components/AuthPage';
 import LandingPage from './components/LandingPage';
 import { ResumeData, ViewMode } from './types/index';
@@ -77,6 +78,8 @@ const MainApp: React.FC = () => {
   const [scale, setScale] = useState(0.8);
   const [isLoading, setIsLoading] = useState(true);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [suggestedExperience, setSuggestedExperience] = useState<any[]>([]);
+  const [suggestedProjects, setSuggestedProjects] = useState<any[]>([]);
   const previewContainerRef = useRef<HTMLDivElement>(null);
   const userId = getUserId();
 
@@ -398,6 +401,8 @@ const MainApp: React.FC = () => {
                 setJd={setTargetJd}
                 onUpdate={(proposal) => { setProfileData({ ...profileData, coverLetter: proposal }); setPreviewData({ ...profileData, coverLetter: proposal }); }}
                 onAgentChange={setActiveAgent}
+                onSuggestedExperience={setSuggestedExperience}
+                onSuggestedProjects={setSuggestedProjects}
               />
             )}
             {view === ViewMode.WORKFLOW && <WorkflowPage />}
@@ -414,10 +419,10 @@ const MainApp: React.FC = () => {
               <div className="flex items-center gap-3">
                 <span className="text-xs font-semibold text-slate-500">
                   {view === ViewMode.COVER_LETTER ? 'Cover Letter Preview' :
-                   view === ViewMode.PROPOSAL ? 'Proposal Preview' :
+                   view === ViewMode.PROPOSAL ? 'Relevant Profile Items' :
                    'Resume Preview'}
                 </span>
-                {view !== ViewMode.COVER_LETTER && matchScore !== null && (
+                {view !== ViewMode.COVER_LETTER && view !== ViewMode.PROPOSAL && matchScore !== null && (
                   <div className="bg-emerald-50 text-emerald-600 px-2.5 py-1 rounded-md border border-emerald-100 flex items-center gap-1.5">
                     <i className="fas fa-check-circle text-xs"></i>
                     <span className="text-xs font-semibold">{matchScore}% Match</span>
@@ -425,39 +430,48 @@ const MainApp: React.FC = () => {
                 )}
               </div>
 
-              <button
-                onClick={handleDownload}
-                disabled={isGeneratingPdf}
-                className="bg-slate-900 text-white px-4 py-2 rounded-lg font-semibold text-xs shadow-md hover:bg-slate-800 hover:shadow-lg active:scale-[0.98] transition-all duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isGeneratingPdf ? (
-                  <>
-                    <i className="fas fa-circle-notch fa-spin"></i>
-                    <span>Generating...</span>
-                  </>
-                ) : (
-                  <>
-                    <i className="fas fa-download"></i>
-                    <span>Export PDF</span>
-                  </>
-                )}
-              </button>
+              {view !== ViewMode.PROPOSAL && (
+                <button
+                  onClick={handleDownload}
+                  disabled={isGeneratingPdf}
+                  className="bg-slate-900 text-white px-4 py-2 rounded-lg font-semibold text-xs shadow-md hover:bg-slate-800 hover:shadow-lg active:scale-[0.98] transition-all duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isGeneratingPdf ? (
+                    <>
+                      <i className="fas fa-circle-notch fa-spin"></i>
+                      <span>Generating...</span>
+                    </>
+                  ) : (
+                    <>
+                      <i className="fas fa-download"></i>
+                      <span>Export PDF</span>
+                    </>
+                  )}
+                </button>
+              )}
             </div>
 
-            <div className="flex-1 overflow-y-auto p-8 custom-scrollbar flex justify-center bg-slate-100">
-              <div
-                style={{ transform: `scale(${scale})`, transformOrigin: 'top center' }}
-                className="transition-transform duration-300"
-              >
-                <div className="shadow-2xl rounded-lg overflow-hidden">
-                   {view === ViewMode.COVER_LETTER || view === ViewMode.PROPOSAL
-                     ? <CoverLetterPreview data={previewData} />
-                     : <ResumePreview data={previewData} highlightedSection={activeAgent} />
-                   }
+            {view === ViewMode.PROPOSAL ? (
+              <SuggestedItemsPanel
+                suggestedExperience={suggestedExperience}
+                suggestedProjects={suggestedProjects}
+              />
+            ) : (
+              <div className="flex-1 overflow-y-auto p-8 custom-scrollbar flex justify-center bg-slate-100">
+                <div
+                  style={{ transform: `scale(${scale})`, transformOrigin: 'top center' }}
+                  className="transition-transform duration-300"
+                >
+                  <div className="shadow-2xl rounded-lg overflow-hidden">
+                     {view === ViewMode.COVER_LETTER
+                       ? <CoverLetterPreview data={previewData} />
+                       : <ResumePreview data={previewData} highlightedSection={activeAgent} />
+                     }
+                  </div>
+                  <div className="h-32 w-full"></div>
                 </div>
-                <div className="h-32 w-full"></div>
               </div>
-            </div>
+            )}
           </div>
         )}
       </main>

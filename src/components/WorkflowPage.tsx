@@ -95,12 +95,14 @@ const nodeTypes = {
 interface Props {}
 
 const WorkflowPage: React.FC<Props> = () => {
+  const [activeWorkflow, setActiveWorkflow] = useState<'resume' | 'proposal'>('resume');
+
   const handlePromptChange = useCallback((nodeId: string, newPrompt: string) => {
     console.log(`Prompt updated for ${nodeId}:`, newPrompt);
     // TODO: Save to backend or localStorage
   }, []);
 
-  const initialNodes: Node[] = [
+  const resumeNodes: Node[] = [
     {
       id: 'start',
       type: 'input',
@@ -215,7 +217,122 @@ const WorkflowPage: React.FC<Props> = () => {
     },
   ];
 
-  const initialEdges: Edge[] = [
+  const proposalNodes: Node[] = [
+    {
+      id: 'start',
+      type: 'input',
+      data: { label: 'Start: Freelance Job Description' },
+      position: { x: 400, y: 0 },
+      className: 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-bold rounded-lg px-4 py-3 shadow-lg border-0',
+    },
+    {
+      id: 'analyze',
+      type: 'promptNode',
+      data: {
+        label: 'Analyze Requirements',
+        description: 'Step 1',
+        icon: 'fa-search',
+        color: 'bg-blue-600',
+        prompt: 'Analyze the freelance job description to identify: required skills, project scope, client pain points, deliverables, and timeline. Extract key requirements.',
+        onPromptChange: handlePromptChange,
+      },
+      position: { x: 400, y: 180 },
+    },
+    {
+      id: 'match',
+      type: 'promptNode',
+      data: {
+        label: 'Match Experience',
+        description: 'Step 2',
+        icon: 'fa-list-check',
+        color: 'bg-violet-600',
+        prompt: 'Review candidate profile and identify the most relevant experiences and projects that match the job requirements. Select top 2-3 experiences and projects.',
+        onPromptChange: handlePromptChange,
+      },
+      position: { x: 400, y: 400 },
+    },
+    {
+      id: 'hook',
+      type: 'promptNode',
+      data: {
+        label: 'Creative Hook',
+        description: 'Step 3',
+        icon: 'fa-lightbulb',
+        color: 'bg-amber-600',
+        prompt: 'Create an attention-grabbing opening (1-2 sentences) that demonstrates understanding of the client\'s needs and immediately shows value.',
+        onPromptChange: handlePromptChange,
+      },
+      position: { x: 100, y: 620 },
+    },
+    {
+      id: 'solution',
+      type: 'promptNode',
+      data: {
+        label: 'Solution Approach',
+        description: 'Step 4',
+        icon: 'fa-lightbulb-on',
+        color: 'bg-cyan-600',
+        prompt: 'Explain how you would solve the problem or complete the project (2-3 sentences). Be specific and actionable.',
+        onPromptChange: handlePromptChange,
+      },
+      position: { x: 400, y: 620 },
+    },
+    {
+      id: 'experience',
+      type: 'promptNode',
+      data: {
+        label: 'Highlight Experience',
+        description: 'Step 5',
+        icon: 'fa-briefcase',
+        color: 'bg-indigo-600',
+        prompt: 'Present the matched experiences (2-3 sentences) emphasizing achievements and outcomes relevant to this job.',
+        onPromptChange: handlePromptChange,
+      },
+      position: { x: 700, y: 620 },
+    },
+    {
+      id: 'questions',
+      type: 'promptNode',
+      data: {
+        label: 'Generate Questions',
+        description: 'Step 6',
+        icon: 'fa-question-circle',
+        color: 'bg-rose-600',
+        prompt: 'Create 2 thoughtful questions about the project that show you\'ve read the job description carefully and want to build a conversation.',
+        onPromptChange: handlePromptChange,
+      },
+      position: { x: 400, y: 840 },
+    },
+    {
+      id: 'cta',
+      type: 'promptNode',
+      data: {
+        label: 'Call to Action',
+        description: 'Step 7',
+        icon: 'fa-bullhorn',
+        color: 'bg-emerald-600',
+        prompt: 'Write a clear call to action (1-2 sentences) suggesting the next step and expressing eagerness to discuss further.',
+        onPromptChange: handlePromptChange,
+      },
+      position: { x: 400, y: 1060 },
+    },
+    {
+      id: 'assemble',
+      type: 'default',
+      data: { label: '📝 Assemble Complete Proposal' },
+      position: { x: 400, y: 1280 },
+      className: 'bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold rounded-lg px-6 py-4 shadow-lg border-0',
+    },
+    {
+      id: 'end',
+      type: 'output',
+      data: { label: 'Winning Freelance Proposal' },
+      position: { x: 400, y: 1480 },
+      className: 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-bold rounded-lg px-4 py-3 shadow-lg border-0',
+    },
+  ];
+
+  const resumeEdges: Edge[] = [
     // Start to all parallel nodes
     { id: 'e-start-summary', source: 'start', target: 'summary', animated: true, style: { stroke: '#8b5cf6' } },
     { id: 'e-start-experience', source: 'start', target: 'experience', animated: true, style: { stroke: '#3b82f6' } },
@@ -240,8 +357,38 @@ const WorkflowPage: React.FC<Props> = () => {
     { id: 'e-cover-end', source: 'cover-letter', target: 'end', animated: true, style: { stroke: '#10b981' } },
   ];
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const proposalEdges: Edge[] = [
+    { id: 'e-start-analyze', source: 'start', target: 'analyze', animated: true, style: { stroke: '#3b82f6' } },
+    { id: 'e-analyze-match', source: 'analyze', target: 'match', animated: true, style: { stroke: '#8b5cf6' } },
+
+    // Match to all parallel composition nodes
+    { id: 'e-match-hook', source: 'match', target: 'hook', animated: true, style: { stroke: '#f59e0b' } },
+    { id: 'e-match-solution', source: 'match', target: 'solution', animated: true, style: { stroke: '#06b6d4' } },
+    { id: 'e-match-experience', source: 'match', target: 'experience', animated: true, style: { stroke: '#6366f1' } },
+
+    // All composition nodes to questions
+    { id: 'e-hook-questions', source: 'hook', target: 'questions', animated: true, style: { stroke: '#f43f5e' } },
+    { id: 'e-solution-questions', source: 'solution', target: 'questions', animated: true, style: { stroke: '#f43f5e' } },
+    { id: 'e-experience-questions', source: 'experience', target: 'questions', animated: true, style: { stroke: '#f43f5e' } },
+
+    // Questions to CTA
+    { id: 'e-questions-cta', source: 'questions', target: 'cta', animated: true, style: { stroke: '#10b981' } },
+
+    // CTA to assembly
+    { id: 'e-cta-assemble', source: 'cta', target: 'assemble', animated: true, style: { stroke: '#3b82f6', strokeWidth: 3 } },
+
+    // Assembly to end
+    { id: 'e-assemble-end', source: 'assemble', target: 'end', animated: true, style: { stroke: '#10b981' } },
+  ];
+
+  const [nodes, setNodes, onNodesChange] = useNodesState(activeWorkflow === 'resume' ? resumeNodes : proposalNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(activeWorkflow === 'resume' ? resumeEdges : proposalEdges);
+
+  // Update nodes and edges when switching workflows
+  React.useEffect(() => {
+    setNodes(activeWorkflow === 'resume' ? resumeNodes : proposalNodes);
+    setEdges(activeWorkflow === 'resume' ? resumeEdges : proposalEdges);
+  }, [activeWorkflow, setNodes, setEdges, resumeNodes, resumeEdges, proposalNodes, proposalEdges]);
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-6 duration-700">
@@ -259,13 +406,42 @@ const WorkflowPage: React.FC<Props> = () => {
           </button>
         </div>
 
+        {/* Workflow Tabs */}
+        <div className="flex gap-2 mb-6">
+          <button
+            onClick={() => setActiveWorkflow('resume')}
+            className={`flex-1 py-3 px-6 rounded-lg font-semibold text-sm transition-all duration-200 ${
+              activeWorkflow === 'resume'
+                ? 'bg-blue-600 text-white shadow-lg'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+            }`}
+          >
+            <i className="fas fa-file-alt mr-2"></i>
+            Resume Workflow
+          </button>
+          <button
+            onClick={() => setActiveWorkflow('proposal')}
+            className={`flex-1 py-3 px-6 rounded-lg font-semibold text-sm transition-all duration-200 ${
+              activeWorkflow === 'proposal'
+                ? 'bg-emerald-600 text-white shadow-lg'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+            }`}
+          >
+            <i className="fas fa-handshake mr-2"></i>
+            Proposal Workflow
+          </button>
+        </div>
+
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
           <div className="flex items-start gap-3">
             <i className="fas fa-info-circle text-blue-600 mt-0.5"></i>
             <div>
               <p className="text-sm text-blue-900 font-semibold">How it works</p>
               <p className="text-xs text-blue-700 mt-1">
-                Each node represents an AI operation in the resume tailoring process. Click the edit icon on any node to customize the prompt that guides the AI. Changes are saved automatically.
+                {activeWorkflow === 'resume'
+                  ? 'Each node represents an AI operation in the resume tailoring process. Click the edit icon on any node to customize the prompt that guides the AI. Changes are saved automatically.'
+                  : 'This workflow shows how AI crafts winning freelance proposals. Each node represents a step in creating a compelling proposal that wins clients.'
+                }
               </p>
             </div>
           </div>
