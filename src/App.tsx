@@ -404,10 +404,11 @@ const MainApp: React.FC = () => {
           </div>
         </div>
 
-        <div
-          ref={previewContainerRef}
-          className="hidden lg:flex w-[450px] xl:w-[550px] 2xl:w-[700px] bg-slate-100 border-l border-slate-200 overflow-hidden flex-col"
-        >
+        {view !== ViewMode.DIAGNOSTICS && (
+          <div
+            ref={previewContainerRef}
+            className="hidden lg:flex w-[450px] xl:w-[550px] 2xl:w-[700px] bg-slate-100 border-l border-slate-200 overflow-hidden flex-col"
+          >
             <div className="h-14 bg-white border-b border-slate-100 px-6 flex items-center justify-between shrink-0">
               <div className="flex items-center gap-3">
                 <span className="text-xs font-semibold text-slate-500">
@@ -465,7 +466,8 @@ const MainApp: React.FC = () => {
                 </div>
               </div>
             )}
-        </div>
+          </div>
+        )}
       </main>
     </div>
   );
