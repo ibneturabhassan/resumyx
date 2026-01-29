@@ -7,7 +7,6 @@ import ProfilePage from './components/ProfilePage';
 import AIBuildPage from './components/AIBuildPage';
 import SettingsPage from './components/SettingsPage';
 import CoverLetterPage from './components/CoverLetterPage';
-import WorkflowPage from './components/WorkflowPage';
 import ProposalPage from './components/ProposalPage';
 import ResumePreview from './components/ResumePreview';
 import CoverLetterPreview from './components/CoverLetterPreview';
@@ -228,7 +227,6 @@ const MainApp: React.FC = () => {
     [ViewMode.AI_BUILD]: 'Tailor',
     [ViewMode.COVER_LETTER]: 'Letter',
     [ViewMode.PROPOSAL]: 'Proposal',
-    [ViewMode.WORKFLOW]: 'Workflow',
     [ViewMode.DIAGNOSTICS]: 'Settings'
   };
 
@@ -302,7 +300,6 @@ const MainApp: React.FC = () => {
             { mode: ViewMode.AI_BUILD, icon: 'fa-wand-magic-sparkles' },
             { mode: ViewMode.COVER_LETTER, icon: 'fa-file-lines' },
             { mode: ViewMode.PROPOSAL, icon: 'fa-handshake' },
-            { mode: ViewMode.WORKFLOW, icon: 'fa-diagram-project' },
             { mode: ViewMode.DIAGNOSTICS, icon: 'fa-gear' }
           ].map(({ mode, icon }) => (
             <button
@@ -334,7 +331,7 @@ const MainApp: React.FC = () => {
 
       <main className="flex-1 flex min-w-0 no-print ml-[72px]">
         <div className="flex-1 overflow-y-auto px-8 py-8 xl:px-12 xl:py-10 bg-slate-100">
-          <div className={view === ViewMode.WORKFLOW ? 'max-w-full mx-auto' : 'max-w-4xl mx-auto'}>
+          <div className="max-w-4xl mx-auto">
             <header className="mb-8">
               <div className="flex items-center justify-between">
                 <div>
@@ -343,7 +340,6 @@ const MainApp: React.FC = () => {
                      view === ViewMode.AI_BUILD ? 'AI Resume Tailor' :
                      view === ViewMode.COVER_LETTER ? 'Cover Letter' :
                      view === ViewMode.PROPOSAL ? 'Freelance Proposal Writer' :
-                     view === ViewMode.WORKFLOW ? 'Workflow Designer' :
                      'Settings'}
                   </h1>
                   <p className="text-sm text-slate-500 mt-1">
@@ -351,7 +347,6 @@ const MainApp: React.FC = () => {
                      view === ViewMode.AI_BUILD ? 'Optimize your resume for any job description' :
                      view === ViewMode.COVER_LETTER ? 'Generate a personalized cover letter' :
                      view === ViewMode.PROPOSAL ? 'Create winning proposals for freelance jobs' :
-                     view === ViewMode.WORKFLOW ? 'Visualize and customize the AI optimization workflow' :
                      'AI configuration, account security, and system diagnostics'}
                   </p>
                 </div>
@@ -405,16 +400,14 @@ const MainApp: React.FC = () => {
                 onSuggestedProjects={setSuggestedProjects}
               />
             )}
-            {view === ViewMode.WORKFLOW && <WorkflowPage />}
             {view === ViewMode.DIAGNOSTICS && <SettingsPage onResetProfile={handleReset} />}
           </div>
         </div>
 
-        {view !== ViewMode.WORKFLOW && (
-          <div
-            ref={previewContainerRef}
-            className="hidden lg:flex w-[450px] xl:w-[550px] 2xl:w-[700px] bg-slate-100 border-l border-slate-200 overflow-hidden flex-col"
-          >
+        <div
+          ref={previewContainerRef}
+          className="hidden lg:flex w-[450px] xl:w-[550px] 2xl:w-[700px] bg-slate-100 border-l border-slate-200 overflow-hidden flex-col"
+        >
             <div className="h-14 bg-white border-b border-slate-100 px-6 flex items-center justify-between shrink-0">
               <div className="flex items-center gap-3">
                 <span className="text-xs font-semibold text-slate-500">
@@ -472,8 +465,7 @@ const MainApp: React.FC = () => {
                 </div>
               </div>
             )}
-          </div>
-        )}
+        </div>
       </main>
     </div>
   );

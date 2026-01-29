@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { apiService } from '../services/apiService';
 import { AIProvider, AIProviderInfo, AIProviderConfig } from '../types/ai-config';
 import { useAuth } from '../contexts/AuthContext';
+import WorkflowPage from './WorkflowPage';
 
 const fallbackProviders: AIProviderInfo[] = [
   {
@@ -49,7 +50,7 @@ interface Props {
 
 const SettingsPage: React.FC<Props> = ({ onResetProfile }) => {
   const { session } = useAuth();
-  const [activeTab, setActiveTab] = useState<'ai' | 'account' | 'system'>('ai');
+  const [activeTab, setActiveTab] = useState<'ai' | 'account' | 'workflow' | 'system'>('ai');
 
   // AI Settings State
   const [providers, setProviders] = useState<AIProviderInfo[]>([]);
@@ -349,6 +350,17 @@ const SettingsPage: React.FC<Props> = ({ onResetProfile }) => {
         >
           <i className="fas fa-user-shield"></i>
           <span>Account</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('workflow')}
+          className={`flex-1 py-3 px-4 rounded-lg font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2 ${
+            activeTab === 'workflow'
+              ? 'bg-white text-blue-600 shadow-md'
+              : 'text-slate-600 hover:text-slate-900'
+          }`}
+        >
+          <i className="fas fa-diagram-project"></i>
+          <span>Workflow</span>
         </button>
         <button
           onClick={() => setActiveTab('system')}
@@ -679,6 +691,11 @@ const SettingsPage: React.FC<Props> = ({ onResetProfile }) => {
             <span>Reset All Profile Data</span>
           </button>
         </div>
+      )}
+
+      {/* Workflow Tab */}
+      {activeTab === 'workflow' && (
+        <WorkflowPage />
       )}
 
       {/* System Tab */}
