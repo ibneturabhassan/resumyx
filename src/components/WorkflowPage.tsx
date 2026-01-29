@@ -388,7 +388,8 @@ const WorkflowPage: React.FC<Props> = () => {
   React.useEffect(() => {
     setNodes(activeWorkflow === 'resume' ? resumeNodes : proposalNodes);
     setEdges(activeWorkflow === 'resume' ? resumeEdges : proposalEdges);
-  }, [activeWorkflow, setNodes, setEdges, resumeNodes, resumeEdges, proposalNodes, proposalEdges]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeWorkflow]);
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-6 duration-700">
